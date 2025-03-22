@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    {% load static %}
-    <title>Gestion des équipements de la ville</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <h1>Bienvenue sur le site de gestion des équipements de la ville</h1>
-    
-    <div id="equipment-list">
-        <!-- Insérez ici la liste des équipements -->
-    </div>
-    
-    <script src="{% static 'script.js' %}"></script>
-</body>
-</html>
+<!-- filepath: c:\Users\minec\OneDrive\Bureau\devweb2025\CY_4\src\cyWebsite\templates\cyWebsite\index.html -->
+{% extends "cyWebsite/base.html" %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Bienvenue sur le site de gestion des équipements de la ville</h1>
+</div>
+{% endblock %}
