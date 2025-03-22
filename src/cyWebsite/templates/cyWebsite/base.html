@@ -1,4 +1,3 @@
-<!-- filepath: c:\Users\minec\OneDrive\Bureau\devweb2025\CY_4\src\cyWebsite\templates\cyWebsite\base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +39,9 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Accueil</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#">Information</a>
                     </li>
                     <li class="nav-item">
@@ -49,7 +51,7 @@
                         <a class="nav-link" href="#">Gestion</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Administration</a>
+                        <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>
                     </li>
                 </ul>
             </div>
@@ -67,6 +69,6 @@
     <!-- Bootstrap JS et ses dépendances -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

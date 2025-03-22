@@ -1,7 +1,7 @@
-from django.urls import path, include
+from django.urls import path
 from .views import index, article
 
 urlpatterns = [
-    path('',index,name="index"),
-    #path('article <int : article_number>',article,include('news.urls')),
+    path('', index, name="news_index"),  # Renommer l'URL pour éviter les conflits
+    path('article/<int:number_article>/', article, name="article"),
 ]

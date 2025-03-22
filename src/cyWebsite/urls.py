@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .views import index
+from .views import index  # Import de la vue index de cyWebsite
 
 urlpatterns = [
-    path('',index,name="index"),
+    path('', index, name='index'),  # URL pour la page d'accueil
     path('admin/', admin.site.urls),
-    path('news/',include('news.urls')),
+    path('news/', include('news.urls')),
 ]
