@@ -1,20 +1,6 @@
 from datetime import timezone
 from django.db import models
 
-class Article(models.Model):
-    name= models.CharField(max_length=30, verbose_name= "nom")
-    contenu=models.CharField(max_length= 4000, verbose_name="contenu")
-    cover=models.ImageField(verbose_name="Image de couverture")
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Article"
-        verbose_name_plural = "Articles"
-
-from django.db import models
-
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nom de la catégorie", unique=True)
 
@@ -39,7 +25,7 @@ class Author(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     content = models.TextField(verbose_name="Contenu")
-    cover = models.ImageField(upload_to='covers/', verbose_name="Image de couverture")
+    cover = models.ImageField(upload_to='data/covers/', verbose_name="Image de couverture")
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, verbose_name="Catégorie")
     author = models.ForeignKey(Author, on_delete=models.DO_NOTHING, verbose_name="Auteur")
     published_date = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")

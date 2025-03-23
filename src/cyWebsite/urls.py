@@ -8,4 +8,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('logout/', views.logout_view, name='logout'),
+    path('objets_connectés/', include('objConnecte.urls')),
 ]

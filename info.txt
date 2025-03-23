@@ -1,0 +1,9 @@
+Point de contribution en ramassant ses ordures et en faisant du tri
+
+Test connexion
+
+Donc au final on aura 4 app:
+- App de gestion des users (Gestion des droits et de la connexion, page de connexion et de gestion de son propre compte)
+- App de gestion des actualités (lecture des actualités + creations de nouvelles articles( pour les connectées))
+- App de gestion des objets connectées ( vélos, lampadaires, feu tricolores (en fonction de l'xp on a droit de controler des objets plus sensibles))
+- App de gestion 
