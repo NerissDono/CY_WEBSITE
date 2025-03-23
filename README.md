@@ -8,6 +8,10 @@ Installer les dependances contenus dans requirements.txt par:
 ```
 pip install -r requirements.txt
 ```
+Installer Pillow
+```
+python -m pip install Pillow
+```
 Lancer le projet avec 
 ```
 python manage.py runserver
