@@ -41,12 +41,14 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
+                {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'accueil' %}">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'information' %}">Information</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'visualisation' %}">Visualisation</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'gestion' %}">Gestion</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Administration</a></li>
                 <li class="nav-item"><a class="nav-link" href="/admin/">Admin Django</a></li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}

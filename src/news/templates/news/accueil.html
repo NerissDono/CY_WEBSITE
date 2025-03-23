@@ -1,0 +1,41 @@
+<!-- filepath: c:\Users\minec\OneDrive\Bureau\devweb2025\CY_6\src\news\templates\news\accueil.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mt-5">
+  <h1 class="display-4 text-primary">Bienvenue sur la ville intelligente !</h1>
+  <p class="lead">Un portail centralisé pour surveiller, gérer et visualiser tous les équipements de votre ville.</p>
+  {% if not user.is_authenticated %}
+  <div class="mt-4">
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg mr-2">Connexion</a>
+    <a href="{% url 'register' %}" class="btn btn-secondary btn-lg">Inscription</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row mt-5">
+  <div class="col-md-4">
+    <div class="card shadow">
+      <div class="card-body">
+        <h5 class="card-title">Données en temps réel</h5>
+        <p class="card-text">Suivi de la pollution, du trafic et des températures en direct.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow">
+      <div class="card-body">
+        <h5 class="card-title">Gestion connectée</h5>
+        <p class="card-text">Contrôlez les équipements : feux, lampadaires, bornes de recharge…</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow">
+      <div class="card-body">
+        <h5 class="card-title">Interaction citoyenne</h5>
+        <p class="card-text">Remontez les incidents et consultez les alertes en un clic.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

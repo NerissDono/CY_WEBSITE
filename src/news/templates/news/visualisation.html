@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1 class="text-center mt-5">Véhicules connectés de la commune</h1>
+<p class="text-center text-muted">Voici les véhicules déclarés par les habitants de la ville intelligente.</p>
+
+<div class="row mt-4">
+  {% for v in vehicules %}
+  <div class="col-md-4 mb-4">
+    <div class="card shadow h-100">
+      <img src="{% static v.image %}" class="card-img-top" alt="Véhicule">
+      <div class="card-body">
+        <h5 class="card-title">{{ v.nom }}</h5>
+        <p class="card-text">
+          <strong>Plaque :</strong> {{ v.plaque }}<br>
+          <strong>Contact :</strong> {{ v.telephone }}
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
