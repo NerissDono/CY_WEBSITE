@@ -1,21 +1,28 @@
-{% extends "cyWebsite/base.html" %}
-
+{% extends 'base.html' %}
 {% block content %}
-<div class="text-center mt-5">
-    <h1 class="display-4 text-primary">Bienvenue sur la ville intelligente !</h1>
-    <p class="lead">Veuillez vous connecter ou vous inscrire pour accéder au portail.</p>
-    {% if not user.is_authenticated %}
-    <div class="mt-4">
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg mr-2">Connexion</a>
-        <a href="{% url 'register' %}" class="btn btn-secondary btn-lg">Inscription</a>
+<h1 class="text-center mt-5">Informations Générales</h1>
+<div class="row mt-4">
+  <div class="col-md-6">
+    <ul class="list-group shadow">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Pollution actuelle
+        <span class="badge badge-danger badge-pill">72 AQI</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Température
+        <span class="badge badge-primary badge-pill">21°C</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Circulation
+        <span class="badge badge-warning badge-pill">Modérée</span>
+      </li>
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <div class="alert alert-info shadow" role="alert">
+      <strong>Info :</strong> Une maintenance est prévue ce soir sur le réseau de bus entre 22h et 4h.
     </div>
-    {% else %}
-    <div class="mt-4">
-        <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">Déconnexion</a>
-    </div>
-    {% endif %}
-    <div class="mt-4">
-        <a href="{% url 'information' %}" class="btn btn-info btn-lg">Informations Générales</a>
-    </div>
+  </div>
 </div>
 {% endblock %}
+
