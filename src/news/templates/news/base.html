@@ -52,14 +52,15 @@
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-danger text-white" href="{% url 'logout' %}">Déconnexion</a>
+                    <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}">Déconnexion</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                    <a class="nav-link" href="{% url 'user:login' %}">Connexion</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Inscription</a></li>
+                    <a class="nav-link" href="{% url 'user:register' %}">Inscription</a>
+                </li>
                 {% endif %}
             </ul>
         </div>

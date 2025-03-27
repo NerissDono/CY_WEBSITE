@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views
 
+app_name = 'cyWebsite'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('accueil/', include('news.urls')),
+    path('news/', include('news.urls')),
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('logout/', views.logout_view, name='logout'),
     path('objets_connectés/', include('objConnecte.urls')),
+    path('user/', include('user.urls')),
 ]
