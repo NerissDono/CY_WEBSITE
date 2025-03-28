@@ -9,10 +9,10 @@ class ObjConnecte(models.Model):
     state=models.BooleanField(default=False, verbose_name='Etat')
     #user = models.ForeignKey('user.User', on_delete=models.DO_NOTHING, verbose_name='Utilisateur')
     connected=models.BooleanField(default=False, verbose_name='Connecté')
-    ip=models.GenericIPAddressField(verbose_name='Adresse IP')
+    ip=models.GenericIPAddressField(verbose_name='Adresse IP', default='127.0.0.1')  # Correction
     #port=models.IntegerField(verbose_name='Port')
-    longitude=models.FloatField(verbose_name='Longitude')
-    latitude=models.FloatField(verbose_name='Latitude')
+    longitude=models.FloatField(verbose_name='Longitude', default=0.0)  # Correction
+    latitude=models.FloatField(verbose_name='Latitude', default=0.0)  # Correction
 
     def __str__(self):
         return self.name

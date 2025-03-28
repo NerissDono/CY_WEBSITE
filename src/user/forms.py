@@ -1,7 +1,7 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
+from .models import User  # Remplacez l'import par celui-ci
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label=_("Adresse e-mail"))
@@ -14,12 +14,6 @@ class CustomUserCreationForm(UserCreationForm):
             'password1': _('Mot de passe'),
             'password2': _('Confirmer le mot de passe'),
         }
-        help_texts = {
-            'username': _('Obligatoire. 150 caractères ou moins. Lettres, chiffres et @/./+/-/_ uniquement.'),
-            'email': _('Obligatoire. Entrez une adresse e-mail valide.'),
-            'password1': _('Obligatoire. Au moins 8 caractères.'),
-            'password2': _('Obligatoire. Entrez le même mot de passe que ci-dessus, pour vérification.'),
-        }
         error_messages = {
             'username': {
                 'unique': _("Ce nom d'utilisateur est déjà pris."),
@@ -28,10 +22,18 @@ class CustomUserCreationForm(UserCreationForm):
                 'invalid': _("Entrez une adresse e-mail valide."),
             },
         }
-        def save(self,commit=True):
-            user = super().save(commit=False)
-            user.email = self.cleaned_data['email']
-            if commit:
-                user.save()
-            return user
-           
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
+
+    def save(self,commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user
+
+class ProfilePictureForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['profile_picture']

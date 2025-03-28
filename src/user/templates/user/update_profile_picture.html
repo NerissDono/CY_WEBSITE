@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mettre à jour la photo de profil</title>
+    <link rel="stylesheet" href="{% static 'styleuser.css' %}">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Mettre à jour la photo de profil</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Mettre à jour la photo</button>
+        </form>
+        <a href="{% url 'user:login' %}">Retour à la connexion</a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+</body>
+</html>

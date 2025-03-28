@@ -1,0 +1,98 @@
+/* Style général pour le body */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Updated font for better aesthetics */
+    background-image: url('./images/background.jpg'); /* Remplacez par le chemin de votre image */
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column; /* Changed to column for better layout */
+    justify-content: center; /* Centered content vertically */
+    align-items: center; /* Centered content horizontally */
+    padding: 0 5%; /* Adjusted padding */
+}
+
+
+/* Section visuelle à gauche */
+.visual-section {
+    width: 100%; /* Adjusted to full width for better responsiveness */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Added margin for spacing */
+}
+
+
+.visual-section img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+}
+
+/* Conteneur du formulaire */
+.form-container {
+    background-color: rgba(255, 255, 255, 0.95); /* Increased opacity for better visibility */
+    padding: 25px 35px; /* Increased padding for a more spacious feel */
+    border-radius: 15px; /* Rounded corners for a softer look */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
+    width: 90%; /* Adjusted width for better responsiveness */
+    max-width: 450px; /* Increased max-width */
+    text-align: left;
+}
+
+
+/* Titre du formulaire */
+.form-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Style des champs de formulaire */
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"],
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+/* Bouton de soumission */
+.form-container button {
+    background-color: #0056b3; /* Darker blue for better contrast */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s; /* Added transform for hover effect */
+    font-weight: bold;
+}
+
+.form-container button:hover {
+    background-color: #004494; /* Even darker on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+
+.form-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Lien sous le formulaire */
+.form-container a {
+    color: #007BFF;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    margin-top: 10px;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}

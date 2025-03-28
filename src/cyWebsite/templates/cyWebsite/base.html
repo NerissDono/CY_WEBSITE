@@ -8,7 +8,8 @@
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}"> <!-- Updated to match the new CSS file name -->
+
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -26,8 +27,10 @@
             flex: 1;
         }
         body {
-            background: url("{% static 'city_background.jpg' %}") no-repeat center center fixed;
-            background-size: cover;
+            background: url("{% static 'city_background.jpg' %}") no-repeat center center fixed; /* Retained existing background */
+            background-size: cover; /* Retained existing background size */
+            /* Additional styles can be added here if needed */
+
         }
     </style>
 </head>

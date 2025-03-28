@@ -19,19 +19,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='objconnecte',
             name='ip',
-            field=models.GenericIPAddressField(default=django.utils.timezone.now, verbose_name='Adresse IP'),
+            field=models.GenericIPAddressField(default='127.0.0.1', verbose_name='Adresse IP'),  # Correction
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='objconnecte',
             name='latitude',
-            field=models.FloatField(default=django.utils.timezone.now, verbose_name='Latitude'),
+            field=models.FloatField(default=0.0, verbose_name='Latitude'),  # Correction
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='objconnecte',
             name='longitude',
-            field=models.FloatField(default=django.utils.timezone.now, verbose_name='Longitude'),
+            field=models.FloatField(default=0.0, verbose_name='Longitude'),  # Correction
             preserve_default=False,
         ),
         migrations.AddField(
