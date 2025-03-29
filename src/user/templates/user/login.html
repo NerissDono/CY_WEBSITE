@@ -6,38 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
     <link rel="stylesheet" href="{% static 'styleuser.css' %}">
-    <!-- ...existing code... -->
 </head>
 <body>
+    <a href="{% url 'index' %}" class="btn-back">Retour à l'accueil</a>
     <div class="form-container">
-    <h2>Connexion</h2>
-    <form method="post" action="{% url 'user:login' %}">
-        {% csrf_token %}
-        {% for field in form %}
-            <div>
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errorlist">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        {% endfor %}
-        <button type="submit">Se connecter</button>
-    </form>
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-            <ol class="{{ message.tags }}">{{ message }}</ol>
-        {% endfor %}
-    </ul>
-{% endif %}
-    <a href="{% url 'user:password_reset' %}">Mot de passe oublié</a>
-    <!-- ...existing code... -->
-    <a href="{% url 'user:register' %}">Créer un compte</a>
+        <h2>Connexion</h2>
+        <form method="post" action="{% url 'user:login' %}">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit">Se connecter</button>
+        </form>
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <ol class="{{ message.tags }}">{{ message }}</ol>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <a href="{% url 'user:password_reset' %}">Mot de passe oublié</a>
+        <a href="{% url 'user:register' %}">Créer un compte</a>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 </body>
