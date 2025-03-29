@@ -124,6 +124,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'cyWebsite/static'),
 ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -132,4 +135,4 @@ DEFAULT_FROM_EMAIL = 'davidegbakou@gmail.com'
 LOGIN_REDIRECT_URL = 'accueil'
 LOGOUT_REDIRECT_URL = 'accueil'
 
-AUTH_USER_MODEL = 'user.User'  
+AUTH_USER_MODEL = 'user.User'
