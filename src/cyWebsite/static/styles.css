@@ -41,4 +41,47 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.article-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+.expanded-article-image {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation for scaling and shadow */
+}
+
+.article-card:hover {
+    transform: scale(0.98); /* Slightly reduce the size */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a more pronounced shadow */
+}
+
+.blurred-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px); /* Apply blur effect */
+    z-index: 1; /* Ensure it appears behind the expanded article */
+    display: none; /* Hidden by default */
+}
+
+#expanded-article {
+    position: relative;
+    z-index: 2; /* Ensure it appears above the blurred background */
+    transform: scale(0.8); /* Initial scale for animation */
+    transition: transform 0.5s ease; /* Smooth animation for scaling */
+}
+
 
