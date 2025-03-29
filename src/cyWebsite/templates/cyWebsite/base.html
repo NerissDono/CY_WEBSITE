@@ -55,8 +55,8 @@
                     <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}">Déconnexion</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user:update_profile_picture' %}">
-                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;" data-toggle="modal" data-target="#profileModal">
+                    <a class="nav-link" href="#">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'default_profile.jpg' %}{% endif %}" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;" data-toggle="modal" data-target="#profileModal">
                     </a>
                 </li>
                 {% else %}
@@ -94,6 +94,8 @@
                 </div>
                 <div class="modal-body">
                     <p>Here you can add more information about the user or options related to the profile.</p>
+                    <p><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
+                    <a class="nav-link" href="{% url 'user:update_profile_picture' %}"></a>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
