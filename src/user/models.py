@@ -3,9 +3,12 @@ from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 
 class User(AbstractUser):
-    profile_picture = models.ImageField(upload_to='data/profile_pictures/', blank=True, null=True)
-    date_joined = models.DateTimeField(default=datetime.now)
-    last_login = models.DateTimeField(auto_now=True)
+    profile_picture = models.ImageField(
+        upload_to='data/profile_pictures/',
+        blank=True,
+        null=True,
+        help_text="Téléchargez une image de profil (formats acceptés : JPEG, PNG)."
+    )
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',  # Nom unique pour éviter les conflits
@@ -17,14 +20,10 @@ class User(AbstractUser):
         blank=True
     )
 
+    class Meta:
+        verbose_name = "Utilisateur"
+        verbose_name_plural = "Utilisateurs"
+        ordering = ['-date_joined']
+
     def __str__(self):
-        return self.username
-    
-    def authenticate(self, request, username=None, password=None):
-        try:
-            user = self.get(username=username)
-            if user.check_password(password):
-                return user
-        except self.DoesNotExist:
-            return None
-        return None
+        return f"{self.username} ({self.email})"
