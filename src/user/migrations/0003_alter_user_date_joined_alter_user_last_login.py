@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='last_login',
-            field=models.DateTimeField(auto_now=True, default=django.utils.timezone.now),
+            field=models.DateTimeField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
     ]
