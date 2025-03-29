@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
-from .models import User  # Remplacez l'import par celui-ci
+from .models import User  # Utilisez votre modèle personnalisé
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label=_("Adresse e-mail"))
+
     class Meta:
-        model = User
+        model = User  
         fields = ('username', 'email', 'password1', 'password2')
         labels = {
             'username': _('Nom d\'utilisateur'),
@@ -37,3 +38,8 @@ class ProfilePictureForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['profile_picture']
+
+class CustomAuthenticationForm(AuthenticationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password']

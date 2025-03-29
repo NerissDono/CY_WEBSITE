@@ -1,28 +1,27 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, PasswordResetForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
-from django.core.mail import send_mail
+from django.contrib.auth import update_session_auth_hash
 from django.conf import settings
-from .forms import CustomUserCreationForm
-from .forms import ProfilePictureForm
-from django.contrib.auth.decorators import login_required
+from .forms import CustomAuthenticationForm, CustomUserCreationForm, ProfilePictureForm
+from .models import User  # Utilisez votre modèle personnalisé
 
 
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+        email = request.POST.get('email')
+        print(username, password)
+        user = User.authenticate(request, username=username, password=password,email=email)
         if user is not None:
             login(request, user)
             return redirect('index')  # Assurez-vous que 'index' correspond à une URL valide
         else:
-            messages.info(request, "Nom d'utilisateur ou mot de passe incorrect")
-    form = AuthenticationForm()
+            messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
+    form = CustomAuthenticationForm()
     return render(request, 'user/login.html', {'form': form})
 
 def logout_user(request):

@@ -54,6 +54,11 @@
                 <li class="nav-item">
                     <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}">Déconnexion</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:update_profile_picture' %}">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;" data-toggle="modal" data-target="#profileModal">
+                    </a>
+                </li>
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'user:login' %}">Connexion</a>
@@ -76,6 +81,27 @@
             <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
         </div>
     </footer>
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Here you can add more information about the user or options related to the profile.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

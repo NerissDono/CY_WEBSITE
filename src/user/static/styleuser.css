@@ -1,4 +1,24 @@
 /* Style général pour le body */
+
+/* Style for circular profile picture */
+.rounded-circle {
+    border-radius: 50%; /* Makes the image circular */
+    border: 2px solid #fff; /* Optional: adds a white border around the image */
+}
+
+/* Style for modal */
+.modal-content {
+    border-radius: 10px; /* Rounded corners for the modal */
+}
+
+.modal-header {
+    background-color: #f8f9fa; /* Light background for the header */
+}
+
+.modal-footer {
+    background-color: #f8f9fa; /* Light background for the footer */
+}
+
 body {
     margin: 0;
     padding: 0;
