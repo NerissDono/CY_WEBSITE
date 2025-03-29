@@ -116,3 +116,23 @@ body {
 .form-container a:hover {
     text-decoration: underline;
 }
+
+/* Style for "Retour à l'accueil" button */
+.btn-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #0056b3; /* Matches the site's primary color */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #004494; /* Darker shade on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
