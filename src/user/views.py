@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, PasswordResetForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings
 from .forms import CustomAuthenticationForm, CustomUserCreationForm, ProfilePictureForm
@@ -80,3 +80,14 @@ def update_profile_picture(request):
     else:
         form = ProfilePictureForm(instance=request.user)
     return render(request, 'news/visualisation.html', {'form': form})
+
+@user_passes_test(lambda u: u.is_superuser)  # Seuls les superutilisateurs peuvent modifier les niveaux d'XP
+def update_user_xp_level(request, username, new_level):
+    try:
+        user = User.objects.get(username=username)
+        user.xp_level = new_level
+        user.save()
+        messages.success(request, f"Le niveau d'XP de {username} a été mis à jour à '{new_level}'.")
+    except User.DoesNotExist:
+        messages.error(request, f"L'utilisateur '{username}' n'existe pas.")
+    return redirect('admin:index')  # Redirigez vers l'interface d'administration ou une autre page appropriée
