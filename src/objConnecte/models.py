@@ -23,6 +23,7 @@ class ObjConnecte(models.Model):
 class Type(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom')
     description = models.TextField(verbose_name='Description')
+    icon = models.ImageField(upload_to='data/type_images/', default='data/type_images/default.jpg', verbose_name='Icône')
 
     def __str__(self):
         return self.name

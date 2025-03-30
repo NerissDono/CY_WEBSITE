@@ -5,6 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from .models import Type
 
 def index(request):
     # Statistiques pour la page d'accueil
@@ -12,12 +13,14 @@ def index(request):
     connected_objects = ObjConnecte.objects.filter(connected=True).count()
     active_objects = ObjConnecte.objects.filter(state=True).count()
     types_count = Type.objects.count()
-    
+    types = Type.objects.all()
+
     context = {
         'total_objects': total_objects,
         'connected_objects': connected_objects,
         'active_objects': active_objects,
         'types_count': types_count,
+        'types': types,
     }
     return render(request, 'objConnecte/index.html', context)
 
