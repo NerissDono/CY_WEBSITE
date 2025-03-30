@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Q
+from objConnecte.models import ObjConnecte, Type 
 from news.models import Article, Category, Author
 
 def index(request):

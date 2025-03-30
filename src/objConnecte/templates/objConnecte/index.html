@@ -1,0 +1,75 @@
+{% extends 'cyWebsite/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="jumbotron bg-light text-dark shadow-sm">
+        <h1 class="display-4 text-center">Équipements Connectés</h1>
+        <p class="lead text-center">Gestion et visualisation des objets connectés de la ville intelligente</p>
+        <hr class="my-4">
+        <p class="text-center">Explorez les différents objets connectés de la ville, consultez leur état et gérez-les selon vos autorisations.</p>
+        <div class="text-center mt-4">
+            <a href="{% url 'objConnecte:objets' %}" class="btn btn-primary btn-lg">Voir tous les équipements</a>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'icons/traffic_light.png' %}" alt="Feux de circulation" class="img-fluid mb-3" style="height: 100px;">
+                    <h3>Feux de circulation</h3>
+                    <p>Contrôlez les feux tricolores et optimisez le trafic urbain.</p>
+                    <a href="{% url 'objConnecte:objets' %}?type=1" class="btn btn-outline-primary">Explorer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'icons/streetlight.png' %}" alt="Éclairage public" class="img-fluid mb-3" style="height: 100px;">
+                    <h3>Lampadaires intelligents</h3>
+                    <p>Gérez l'éclairage urbain selon les besoins et économisez l'énergie.</p>
+                    <a href="{% url 'objConnecte:objets' %}?type=2" class="btn btn-outline-primary">Explorer</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <img src="{% static 'icons/scooter.png' %}" alt="Mobilité" class="img-fluid mb-3" style="height: 100px;">
+                    <h3>Mobilité partagée</h3>
+                    <p>Suivez la localisation et l'état des trottinettes et vélos électriques.</p>
+                    <a href="{% url 'objConnecte:objets' %}?type=3" class="btn btn-outline-primary">Explorer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow mt-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0">Statistiques</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <h4>{{ total_objects }}</h4>
+                    <p>Équipements total</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h4>{{ connected_objects }}</h4>
+                    <p>Équipements connectés</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h4>{{ active_objects }}</h4>
+                    <p>Équipements actifs</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h4>{{ types_count }}</h4>
+                    <p>Types d'équipements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

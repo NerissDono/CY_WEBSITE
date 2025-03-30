@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         html, body {
             height: 100%;
@@ -42,6 +44,7 @@
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}">Profil</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}">Objets Connectés</a></li>
                 {% if user.xp_level in 'complex admin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
                 {% endif %}

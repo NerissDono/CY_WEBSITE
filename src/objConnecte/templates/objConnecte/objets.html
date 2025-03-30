@@ -1,0 +1,183 @@
+{% extends 'cyWebsite/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    {% csrf_token %}  <!-- Ajout du token CSRF ici -->
+    <h1 class="text-center mb-4">Équipements Connectés de la Ville</h1>
+    
+    <!-- Barre de recherche et filtres -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form class="row" method="get">
+                <div class="col-md-6 mb-2">
+                    <input type="text" class="form-control" name="search" placeholder="Rechercher un équipement..." 
+                           value="{{ request.GET.search|default:'' }}">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-control" name="type">
+                        <option value="">Tous les types</option>
+                        {% for type in types %}
+                            <option value="{{ type.id }}" {% if request.GET.type == type.id|stringformat:"i" %}selected{% endif %}>
+                                {{ type.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-control" name="status">
+                        <option value="">Tous les états</option>
+                        <option value="connected" {% if request.GET.status == 'connected' %}selected{% endif %}>Connectés</option>
+                        <option value="disconnected" {% if request.GET.status == 'disconnected' %}selected{% endif %}>Déconnectés</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Actifs</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactifs</option>
+                    </select>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                    <a href="{% url 'objConnecte:objets' %}" class="btn btn-outline-secondary ml-2">Réinitialiser</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des objets -->
+    <div class="row">
+        {% if objets %}
+            {% for objet in objets %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ objet.name }}</h5>
+                            <span class="badge {% if objet.connected %}badge-success{% else %}badge-danger{% endif %}">
+                                {{ objet.connected|yesno:"Connecté,Déconnecté" }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <img src="{{ objet.image.url }}" alt="{{ objet.name }}" class="img-fluid mb-3" style="height: 150px; width: 100%; object-fit: cover;">
+                            <p><strong>Type:</strong> {{ objet.type.name }}</p>
+                            <p><strong>État:</strong> 
+                                <span class="{% if objet.state %}text-success{% else %}text-danger{% endif %}">
+                                    {{ objet.state|yesno:"Actif,Inactif" }}
+                                </span>
+                            </p>
+                            <p class="text-muted">{{ objet.description|truncatechars:100 }}</p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="{% url 'objConnecte:objet' objet.id %}" class="btn btn-primary btn-sm">Détails</a>
+                            {% if user.xp_level != 'simple' %}
+                                <button class="btn btn-outline-success btn-sm toggle-state" data-id="{{ objet.id }}" data-state="{{ objet.state|yesno:'true,false' }}">
+                                    {{ objet.state|yesno:"Désactiver,Activer" }}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    Aucun équipement connecté ne correspond à ces critères.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination (optionnelle) -->
+    {% if objets.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if objets.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ objets.previous_page_number }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">Précédent</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Précédent</span>
+                </li>
+            {% endif %}
+
+            {% for i in objets.paginator.page_range %}
+                {% if objets.number == i %}
+                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if objets.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ objets.next_page_number }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">Suivant</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Suivant</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+    // Script pour activer/désactiver un objet connecté via AJAX
+    document.querySelectorAll('.toggle-state').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); // Empêcher la propagation du clic
+            
+            const objectId = this.getAttribute('data-id');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Désactiver le bouton pendant la requête
+            this.disabled = true;
+            
+            fetch(`/objets_connectés/api/toggle-state/${objectId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mettre à jour le texte du bouton
+                    this.textContent = data.state ? "Désactiver" : "Activer";
+                    
+                    // Mettre à jour l'affichage de l'état de façon plus robuste
+                    const card = this.closest('.card');
+                    // Trouver tous les paragraphes dans cette carte
+                    const allParagraphs = card.querySelectorAll('p');
+                    
+                    // Parcourir les paragraphes pour trouver celui qui contient "État:"
+                    allParagraphs.forEach(p => {
+                        if (p.textContent.includes('État:')) {
+                            // Trouvé le bon paragraphe, maintenant cibler le span à l'intérieur
+                            const span = p.querySelector('span');
+                            if (span) {
+                                span.textContent = data.state ? "Actif" : "Inactif";
+                                span.className = data.state ? "text-success" : "text-danger";
+                            }
+                        }
+                    });
+                    
+                    alert(`État changé avec succès: ${data.state ? "Actif" : "Inactif"}`);
+                } else {
+                    alert("Erreur: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Une erreur est survenue lors de la modification de l'état.");
+            })
+            .finally(() => {
+                this.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %}
+
