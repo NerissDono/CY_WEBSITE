@@ -41,11 +41,13 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:accueil' %}">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:information' %}">Information</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}">Visualisation</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}">Administration</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}">Profil</a></li>
+                {% if user.xp_level in 'complex admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
+                {% endif %}
+                {% if user.xp_level == 'admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}">Administration</a></li>
+                {% endif %}
                 <li class="nav-item"><a class="nav-link" href="/admin/">Admin Django</a></li>
                 {% endif %}
             </ul>

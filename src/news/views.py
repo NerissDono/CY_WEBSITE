@@ -2,6 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
+from user.decorators import xp_level_required
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from .models import Article, Category, Author
+from .forms import ArticleForm  # Importez le formulaire pour les articles
 
 def accueil(request):
     if not request.user.is_authenticated:
@@ -14,47 +19,71 @@ def information(request):
     return render(request, 'news/information.html')
 
 @login_required
+@xp_level_required('complex')
 def gestion(request):
     return render(request, 'news/gestion.html')
 
 @user_passes_test(lambda u: u.is_superuser)
+@xp_level_required('admin')
 def administration(request):
     return render(request, 'news/administration.html')
 
+@login_required
 def visualisation(request):
-    vehicules = [
-        {
-            "nom": "Peugeot 403 Rouge",
-            "plaque": "AB-123-CD",
-            "telephone": "06 11 22 33 44",
-            "image": "vehicules/voiture1.png"
-        },
-        {
-            "nom": "BMW M3 Grise",
-            "plaque": "EF-456-GH",
-            "telephone": "07 55 66 77 88",
-            "image": "vehicules/voiture2.png"
-        },
-        {
-            "nom": "Mercedes GLA Blanche",
-            "plaque": "IJ-789-KL",
-            "telephone": "06 98 76 54 32",
-            "image": "vehicules/voiture3.png"
-        },
-        {
-            "nom": "Mercedes GLE Grise",
-            "plaque": "MN-321-OP",
-            "telephone": "07 33 22 11 00",
-            "image": "vehicules/voiture4.png"
-        },
-        {
-            "nom": "Dacia Duster Blanche",
-            "plaque": "QR-654-ST",
-            "telephone": "06 70 80 90 10",
-            "image": "vehicules/voiture5.png"
-        },
-    ]
-    return render(request, "news/visualisation.html", {"vehicules": vehicules})
+    return render(request, "news/visualisation.html", {"user": request.user})
+
+@login_required
+def create_article(request):
+    if request.user.xp_level not in ['complex', 'admin']:
+        raise PermissionDenied("Vous n'avez pas les permissions nécessaires pour créer un article.")
+    
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, request.FILES)
+        if form.is_valid():
+            article = form.save(commit=False)
+            try:
+                # Associez l'article à l'instance Author correspondante
+                author = Author.objects.get(name=request.user.username)
+                article.author = author
+                article.save()  # Sauvegarde l'article dans la base de données
+                messages.success(request, "L'article a été publié avec succès.")
+                return redirect('news:visualisation')  # Redirigez vers la page de profil
+            except Author.DoesNotExist:
+                messages.error(request, "Vous n'êtes pas enregistré comme auteur.")
+            except Exception as e:
+                messages.error(request, f"Une erreur est survenue : {e}")
+        else:
+            messages.error(request, "Le formulaire contient des erreurs. Veuillez vérifier les champs.")
+    else:
+        form = ArticleForm()
+    
+    return render(request, 'news/create_article.html', {'form': form})
+
+@login_required
+def my_articles(request):
+    try:
+        # Récupérez l'auteur correspondant à l'utilisateur connecté
+        author = Author.objects.get(name=request.user.username)
+        # Récupérez les articles associés à cet auteur
+        articles = Article.objects.filter(author=author)
+    except Author.DoesNotExist:
+        # Si l'utilisateur n'est pas un auteur, aucun article ne sera affiché
+        articles = []
+    return render(request, 'news/my_articles.html', {'articles': articles})
+
+@login_required
+def delete_article(request, article_id):
+    try:
+        # Récupérez l'article à supprimer
+        article = Article.objects.get(id=article_id, author__name=request.user.username)
+        if request.method == 'POST':
+            article.delete()
+            messages.success(request, "L'article a été supprimé avec succès.")
+            return redirect('news:my_articles')
+    except Article.DoesNotExist:
+        messages.error(request, "L'article n'existe pas ou vous n'avez pas la permission de le supprimer.")
+        return redirect('news:my_articles')
+    return render(request, 'news/confirm_delete.html', {'article': article})
 
 def register(request):
     if request.method == 'POST':

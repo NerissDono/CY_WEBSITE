@@ -31,6 +31,3 @@ def index(request):
         'selected_category': selected_category,
         'selected_author': selected_author
     })
-
-
-

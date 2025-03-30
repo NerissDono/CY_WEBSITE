@@ -51,7 +51,7 @@
   <h1 class="text-center">Articles Récents</h1>
   <div class="row mt-4" id="articles-container">
     {% for article in articles %}
-    <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" onclick="expandArticle({{ article.id }})" style="cursor: pointer;">
+    <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" onclick="expandArticle({{article.id}})" style="cursor: pointer;">
       <div class="card shadow h-100">
         <img src="{{ article.cover.url }}" class="card-img-top article-image" alt="Image de couverture">
         <div class="card-body text-center">
@@ -154,4 +154,3 @@
   }
 </script>
 {% endblock %}
-
