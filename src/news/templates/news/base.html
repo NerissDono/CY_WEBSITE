@@ -44,8 +44,12 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'accueil' %}">Accueil</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'information' %}">Information</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'visualisation' %}">Visualisation</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'gestion' %}">Gestion</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'administration' %}">Administration</a></li>
+                {% if user.xp_level in 'intermediate complex admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
+                {% endif %}
+                {% if user.xp_level == 'admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}">Administration</a></li>
+                {% endif %}
                 <li class="nav-item"><a class="nav-link" href="/admin/">Admin Django</a></li>
                 {% endif %}
             </ul>
@@ -64,8 +68,7 @@
                     <a class="nav-link" href="{% url 'user:login' %}">Connexion</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user:register' %}">Inscription</a>
-                </li>
+                    <a class="nav-link" href="{% url 'user:register' %}">Inscription</a></li>
                 {% endif %}
             </ul>
         </div>
