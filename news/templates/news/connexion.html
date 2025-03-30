@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mt-5">
+  <h1 class="display-4 text-primary">Bienvenue sur la ville intelligente !</h1>
+  <p class="lead">Veuillez vous connecter ou vous inscrire pour accéder au portail.</p>
+  <div class="mt-4">
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg mr-2">Connexion</a>
+    <a href="{% url 'register' %}" class="btn btn-secondary btn-lg">Inscription</a>
+  </div>
+  <div class="mt-4">
+    <a href="{% url 'information' %}" class="btn btn-info btn-lg">Informations Générales</a>
+  </div>
+</div>
+{% endblock %}

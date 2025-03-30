@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-center mt-5">Administration</h1>
+
+<div class="alert alert-danger text-center mt-4" role="alert">
+  <strong>Accès restreint :</strong> Cette page est réservée aux administrateurs système autorisés.
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h5>Utilisateurs</h5>
+      <p>Gérez les rôles, comptes, et permissions des agents municipaux.</p>
+      <button class="btn btn-outline-primary btn-block">Accéder</button>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h5>Logs & Activité</h5>
+      <p>Consultez les historiques de connexions, actions sensibles et incidents.</p>
+      <button class="btn btn-outline-secondary btn-block">Voir les logs</button>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h5>Base de données</h5>
+      <p>Exportez ou restaurez les données critiques de la ville.</p>
+      <button class="btn btn-outline-danger btn-block">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

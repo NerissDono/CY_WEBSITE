@@ -1,0 +1,156 @@
+{% extends 'cyWebsite/base.html' %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <!-- ...existing navigation links... -->
+    </ul>
+    <form class="form-inline ml-auto d-flex" method="get" action="{% url 'index' %}" style="flex-grow: 1; max-width: 950px;">
+      <input class="form-control" type="search" name="q" placeholder="Rechercher des articles..." aria-label="Search" value="{{ query }}" style="flex-grow: 1;">
+      <button class="btn btn-outline-success ml-2" type="submit">Rechercher</button>
+    </form>
+    <div class="dropdown ml-3">
+      <button class="btn btn-outline-primary" type="button" id="filterDropdown" onclick="toggleFilterMenu()">
+        Filtre
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div id="filter-menu" class="container mt-3" style="display: none; background-color: #f8f9fa; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+  <div class="row">
+    <div class="col-md-6">
+      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('category-submenu')">
+        Catégories
+      </button>
+      <ul id="category-submenu" class="list-unstyled mt-2" style="display: none;">
+        <li><a href="{% url 'index' %}">Toutes les catégories</a></li>
+        {% for category in categories %}
+        <li><a href="{% url 'index' %}?category={{ category.name }}">{{ category.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-6">
+      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('author-submenu')">
+        Auteurs
+      </button>
+      <ul id="author-submenu" class="list-unstyled mt-2" style="display: none;">
+        <li><a href="{% url 'index' %}">Tous les auteurs</a></li>
+        {% for author in authors %}
+        <li><a href="{% url 'index' %}?author={{ author.name }}">{{ author.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <h1 class="text-center">Articles Récents</h1>
+  <div class="row mt-4" id="articles-container">
+    {% for article in articles %}
+    <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" onclick="expandArticle({{article.id}})" style="cursor: pointer;">
+      <div class="card shadow h-100">
+        <img src="{{ article.cover.url }}" class="card-img-top article-image" alt="Image de couverture">
+        <div class="card-body text-center">
+          <p class="text-muted"><strong>Auteur :</strong> {{ article.author.name }}</p>
+          <h5 class="card-title" style="text-decoration: underline; font-size: 1.5rem;">
+            {{ article.title }}
+          </h5>
+          <p id="article-preview-{{ article.id }}" class="card-text" style="font-size: 1rem;">
+            {{ article.content|truncatewords:20 }}
+          </p>
+          <p id="article-full-{{ article.id }}" class="card-text" style="font-size: 1rem; display: none;">
+            {{ article.content }}
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="expanded-article-container" style="display: none;">
+  <div id="blurred-background" class="blurred-background"></div>
+  <div id="expanded-article" class="card shadow">
+    <button class="btn btn-danger" style="position: absolute; top: 10px; right: 10px;" onclick="closeExpandedArticle()">Fermer</button>
+    <div class="card-body text-center" style="overflow-y: auto; max-height: 80vh;">
+      <img id="expanded-article-image" src="" class="img-fluid expanded-article-image mb-3" alt="Image de couverture">
+      <p id="expanded-article-author" class="text-muted"></p>
+      <h5 id="expanded-article-title" class="card-title" style="text-decoration: underline; font-size: 2rem;"></h5>
+      <p id="expanded-article-content" class="card-text" style="font-size: 1.2rem;"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function expandArticle(articleId) {
+    const articleCard = document.getElementById(`article-card-${articleId}`);
+    const rect = articleCard.getBoundingClientRect(); // Get the position of the article
+    const expandedContainer = document.getElementById('expanded-article-container');
+    const blurredBackground = document.getElementById('blurred-background');
+    const expandedArticle = document.getElementById('expanded-article');
+
+    // Set initial position and size for animation
+    expandedContainer.style.display = 'flex';
+    expandedContainer.style.position = 'fixed';
+    expandedContainer.style.top = '0';
+    expandedContainer.style.left = '0';
+    expandedContainer.style.width = '100vw';
+    expandedContainer.style.height = '100vh';
+    expandedContainer.style.justifyContent = 'center';
+    expandedContainer.style.alignItems = 'center';
+
+    // Show blurred background
+    blurredBackground.style.display = 'block';
+
+    // Populate the expanded article content
+    const title = articleCard.querySelector('.card-title').innerText;
+    const author = articleCard.querySelector('.text-muted').innerText;
+    const image = articleCard.querySelector('.article-image').src;
+    const content = document.getElementById(`article-full-${articleId}`).innerText;
+
+    document.getElementById('expanded-article-title').innerText = title;
+    document.getElementById('expanded-article-author').innerText = author;
+    document.getElementById('expanded-article-image').src = image;
+    document.getElementById('expanded-article-content').innerText = content;
+
+    // Animate the expanded article
+    expandedArticle.style.transition = 'transform 0.5s ease';
+    expandedArticle.style.transform = 'scale(1)';
+    expandedArticle.style.width = '80%';
+    expandedArticle.style.margin = 'auto';
+    expandedArticle.style.backgroundColor = 'white';
+    expandedArticle.style.padding = '20px';
+    expandedArticle.style.borderRadius = '10px';
+  }
+
+  function closeExpandedArticle() {
+    const expandedContainer = document.getElementById('expanded-article-container');
+    const blurredBackground = document.getElementById('blurred-background');
+    const articlesContainer = document.getElementById('articles-container');
+
+    // Reset the expanded container
+    expandedContainer.style.display = 'none';
+
+    // Hide blurred background
+    blurredBackground.style.display = 'none';
+
+    // Reset the expanded article
+    const expandedArticle = document.getElementById('expanded-article');
+    expandedArticle.style.transform = 'scale(0.8)';
+  }
+
+  function toggleFilterMenu() {
+    const filterMenu = document.getElementById('filter-menu');
+    filterMenu.style.display = filterMenu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function toggleSubMenu(subMenuId) {
+    const subMenu = document.getElementById(subMenuId);
+    subMenu.style.display = subMenu.style.display === 'none' ? 'block' : 'none';
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'cyWebsite/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h1>Créer un article</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Publier</button>
+    </form>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock %}
