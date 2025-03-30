@@ -19,6 +19,17 @@ class User(AbstractUser):
         related_name='custom_user_permissions_set',  # Nom unique pour éviter les conflits
         blank=True
     )
+    XP_LEVEL_CHOICES = [
+        ('simple', 'Simple'),
+        ('complex', 'Complexe'),
+        ('admin', 'Admin'),
+    ]
+    xp_level = models.CharField(
+        max_length=10,
+        choices=XP_LEVEL_CHOICES,
+        default='simple',
+        verbose_name="Niveau d'XP"
+    )
 
     class Meta:
         verbose_name = "Utilisateur"

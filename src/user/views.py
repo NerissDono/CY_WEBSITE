@@ -76,7 +76,7 @@ def update_profile_picture(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Votre photo de profil a été mise à jour avec succès.")
-            return redirect('index')  # Redirigez vers une page appropriée
+            return redirect('news:visualisation')  # Redirigez vers la page de visualisation
     else:
         form = ProfilePictureForm(instance=request.user)
-    return render(request, 'user/update_profile_picture.html', {'form': form})
+    return render(request, 'news/visualisation.html', {'form': form})

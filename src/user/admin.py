@@ -9,10 +9,10 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ('username', 'email')
     ordering = ('username',)
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('profile_picture',)}),
+        (None, {'fields': ('profile_picture', 'xp_level')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('profile_picture',)}),
+        (None, {'fields': ('profile_picture', 'xp_level')}),
     )
 
     def get_form(self, request, obj=None, **kwargs):

@@ -27,9 +27,10 @@ class CustomUserCreationForm(UserCreationForm):
         cleaned_data = super().clean()
         return cleaned_data
 
-    def save(self,commit=True):
+    def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        user.xp_level = 'simple'  # Assigner le niveau d'XP par défaut
         if commit:
             user.save()
         return user
@@ -38,6 +39,9 @@ class ProfilePictureForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['profile_picture']
+        widgets = {
+            'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
 
 class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
