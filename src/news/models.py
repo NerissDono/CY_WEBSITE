@@ -25,17 +25,13 @@ class Author(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     content = models.TextField(verbose_name="Contenu")
-    cover = models.ImageField(upload_to='data/covers/', verbose_name="Image de couverture")
+    cover = models.ImageField(upload_to='data/covers/', verbose_name="Image de couverture", blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, verbose_name="Catégorie")
     author = models.ForeignKey(Author, on_delete=models.DO_NOTHING, verbose_name="Auteur")
     published_date = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")
 
     def __str__(self):
         return self.title
-
-    class Meta:
-        verbose_name = "Article"
-        verbose_name_plural = "Articles"
 
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.DO_NOTHING, related_name='comments', verbose_name="Article")

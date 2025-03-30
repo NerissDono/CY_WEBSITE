@@ -42,8 +42,7 @@
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'accueil' %}">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'information' %}">Information</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'visualisation' %}">Visualisation</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'visualisation' %}">Profil</a></li>
                 {% if user.xp_level in 'intermediate complex admin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
                 {% endif %}

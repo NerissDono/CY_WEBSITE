@@ -18,6 +18,24 @@
             <p><strong>Niveau d'XP :</strong> {{ user.get_xp_level_display }}</p>
         </div>
     </div>
+
+    <!-- Section pour créer un article -->
+    <div class="card shadow mt-4">
+        <div class="card-body">
+            <h3>Créer un article</h3>
+            <p>Partagez vos idées en créant un nouvel article.</p>
+            <a href="{% url 'news:create_article' %}" class="btn btn-primary">Créer un article</a>
+        </div>
+    </div>
+
+    <!-- Section pour voir les articles écrits -->
+    <div class="card shadow mt-4">
+        <div class="card-body">
+            <h3>Mes articles</h3>
+            <p>Consultez les articles que vous avez déjà écrits.</p>
+            <a href="{% url 'news:my_articles' %}" class="btn btn-secondary">Voir mes articles</a>
+        </div>
+    </div>
 </div>
 
 <!-- Modal pour changer la photo de profil -->
