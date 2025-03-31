@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 from .models import User  # Utilisez votre modèle personnalisé
+from .func import send_verification_email
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label=_("Adresse e-mail"))
@@ -30,9 +31,10 @@ class CustomUserCreationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
-        user.xp_level = 'simple'  # Assigner le niveau d'XP par défaut
+        user.is_active = False  # Désactiver le compte jusqu'à la validation
         if commit:
             user.save()
+            send_verification_email(user, self.request)  # Envoyer l'email de validation
         return user
 
 class ProfilePictureForm(forms.ModelForm):

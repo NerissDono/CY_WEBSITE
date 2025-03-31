@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import login_user, logout_user, password_reset_request, register_user, change_password, update_user, update_user_xp_level, search_user, public_profile, update_profile_picture
+from django.contrib.auth import views as auth_views
+from .views import login_user, logout_user, password_reset_request, register_user, change_password, update_user, update_user_xp_level, search_user, public_profile, update_profile_picture, activate_account
 
 app_name = 'user'
 
@@ -14,4 +15,5 @@ urlpatterns = [
     path('search_user/', search_user, name='search_user'),
     path('profile/<str:username>/', public_profile, name='public_profile'),
     path('update_profile_picture/', update_profile_picture, name='update_profile_picture'),
+    path('activate/<uidb64>/<token>/', activate_account, name='activate_account'),
 ]
