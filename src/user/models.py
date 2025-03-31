@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
-from news.models import Author  # Importez le modèle Author
+from news.models import Article, Author  # Importez le modèle Author
 
 class User(AbstractUser):
     profile_picture = models.ImageField(
@@ -33,6 +33,11 @@ class User(AbstractUser):
         choices=XP_LEVEL_CHOICES,
         default='simple',
         verbose_name="Niveau d'XP"
+    )
+    date_naissance = models.DateField(
+        blank=True,
+        null=True,
+        help_text="Entrez votre date de naissance (format : DD-MM-YYYY)."
     )
 
     class Meta:
@@ -64,5 +69,9 @@ def create_or_update_author(sender, instance, created, **kwargs):
             defaults={'email': instance.email}
         )
     elif not created:
-        # Supprimez l'auteur si l'utilisateur n'est plus "complex" ou "admin"
-        Author.objects.filter(name=instance.username).delete()
+        # Vérifiez si des articles existent avant de supprimer l'auteur
+        if not Article.objects.filter(author__name=instance.username).exists():
+            Author.objects.filter(name=instance.username).delete()
+        else:
+            # Logique alternative si des articles existent
+            pass

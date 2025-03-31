@@ -47,3 +47,43 @@ class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
         model = User
         fields = ['username', 'password']
+
+class CustomUpdateUserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'date_naissance', 'profile_picture']
+        labels = {
+            'username': _('Nom d\'utilisateur'),
+            'email': _('Adresse e-mail'),
+            'first_name': _('Prénom'),
+            'last_name': _('Nom de famille'),
+            'date_naissance': _('Date de naissance'),
+            'profile_picture': _('Photo de profil'),
+        }
+        error_messages = {
+            'username': {
+                'unique': _("Ce nom d'utilisateur est déjà pris."),
+            },
+            'email': {
+                'invalid': _("Entrez une adresse e-mail valide."),
+            },
+        }
+        widgets = {
+            'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'date_naissance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get('email')
+        profile_picture = cleaned_data.get('profile_picture')
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError(_("Cette adresse e-mail est déjà utilisée."))
+        return cleaned_data
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user

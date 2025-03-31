@@ -27,7 +27,7 @@ class Article(models.Model):
     content = models.TextField(verbose_name="Contenu")
     cover = models.ImageField(upload_to='data/covers/', verbose_name="Image de couverture", blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, verbose_name="Catégorie")
-    author = models.ForeignKey(Author, on_delete=models.DO_NOTHING, verbose_name="Auteur")
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name="Auteur")
     published_date = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")
 
     def __str__(self):

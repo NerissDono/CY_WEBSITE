@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, Pa
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings
-from .forms import CustomAuthenticationForm, CustomUserCreationForm, ProfilePictureForm
+from .forms import CustomAuthenticationForm, CustomUserCreationForm, ProfilePictureForm, CustomUpdateUserForm
 from .models import User  # Utilisez votre modèle personnalisé
 
 
@@ -70,16 +70,18 @@ def password_reset_request(request):
     return render(request, 'user/password_reset.html', {'form': form})
 
 @login_required
-def update_profile_picture(request):
+def update_user(request):
     if request.method == 'POST':
-        form = ProfilePictureForm(request.POST, request.FILES, instance=request.user)
+        form = CustomUpdateUserForm(request.POST,request.FILES , instance=request.user)
         if form.is_valid():
+            print('yes')
             form.save()
-            messages.success(request, "Votre photo de profil a été mise à jour avec succès.")
+            messages.success(request, "Vos informations de profil ont été mises à jour avec succès.")
             return redirect('news:visualisation')  # Redirigez vers la page de visualisation
     else:
-        form = ProfilePictureForm(instance=request.user)
+        form = CustomUpdateUserForm(instance=request.user)
     return render(request, 'news/visualisation.html', {'form': form})
+
 
 @user_passes_test(lambda u: u.is_superuser)  # Seuls les superutilisateurs peuvent modifier les niveaux d'XP
 def update_user_xp_level(request, username, new_level):
