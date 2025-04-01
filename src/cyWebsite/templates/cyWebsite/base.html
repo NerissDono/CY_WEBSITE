@@ -28,14 +28,48 @@
             flex: 1;
         }
         body {
-            background: url("{% static 'city_background.jpg' %}") no-repeat center center fixed;
+            background: url("{% static 'back1.jpg' %}") no-repeat center center fixed;
             background-size: cover;
         }
+
+        .navbar {
+            background-color: #1e2a47; /* Couleur foncée */
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f8f9fa !important;
+        }
+        footer {
+            background-color: #282828; /* Couleur de fond foncée pour le pied de page */
+            color: #fff;
+        }
+        footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .card {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        .btn:hover {
+            transform: scale(1.1);
+            transition: all 0.3s ease;
+        }
+        
     </style>
 </head>
 <body>
 <div class="wrapper">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="{% url 'index' %}">CY_WEBSITE</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -43,21 +77,21 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}">Profil</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}">Objets Connectés</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}"><i class="fas fa-user"></i> Profil</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}"><i class="fas fa-plug"></i> Objets Connectés</a></li>
                 {% if user.xp_level in 'complex admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}"><i class="fas fa-cogs"></i> Gestion</a></li>
                 {% endif %}
                 {% if user.xp_level == 'admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}">Administration</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}"><i class="fas fa-shield-alt"></i> Administration</a></li>
                 {% endif %}
-                <li class="nav-item"><a class="nav-link" href="/admin/">Admin Django</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-cogs"></i> Admin Django</a></li>
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}">Déconnexion</a>
+                    <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'user:update_user' %}">
@@ -76,38 +110,38 @@
         </div>
     </nav>
 
-    <div class="container content mt-4">
-        {% block content %}
-        {% endblock %}
-    </div>
+    {% block content %}
+    {% endblock %}
 
-    <footer class="bg-light text-center text-lg-start mt-4 d-flex align-items-center" style="padding: 10px; font-size: 0.9rem; height: 50px;">
-        <div class="container p-0.5 text-center">
-            <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
-        </div>
+
+
+    <!-- Footer -->
+    <footer class="bg-dark text-center text-white py-3">
+        <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
+        <p>Contactez-nous à : <a href="mailto:contact@cywebsite.com" class="text-white">contact@cywebsite.com</a></p>
     </footer>
 
-    <!-- Profile Modal -->
-    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Here you can add more information about the user or options related to the profile.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+   <!-- Profile Modal -->
+   <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Here you can add more information about the user or options related to the profile.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-
 </div>
+</div>
+
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
