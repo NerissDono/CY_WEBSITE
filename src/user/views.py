@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import update_session_auth_hash
 from django.conf import settings
@@ -64,6 +64,29 @@ def change_password(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'user/change_password.html', {'form': form})
 
+def password_reset(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        print(user)
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)  # Important!
+                messages.success(request, "Votre mot de passe a été changé avec succès.")
+                return redirect('index')  # Redirect to a success page
+        else:
+            form = SetPasswordForm(request.user)
+            return render(request, 'user/password_reset.html', {'form': form})
+    else:
+        return HttpResponse('Le lien d\'activation est invalide.')
+    
+
 def password_reset_request(request):
 
     if request.method == 'POST':
@@ -74,13 +97,13 @@ def password_reset_request(request):
                 email_template_name='user/password_reset_email.html',
                 subject_template_name='user/password_reset_subject.txt',
                 use_https=request.is_secure(),
-                from_email=settings.DEFAULT_FROM_EMAIL
+                from_email=settings.DEFAULT_FROM_EMAIL,
             )
             messages.success(request, "Un e-mail de réinitialisation de mot de passe a été envoyé.")
             return redirect('user:login')
     else:
         form = PasswordResetForm()
-    return render(request, 'user/password_reset.html', {'form': form})
+    return render(request, 'user/password_reset_request.html', {'form': form})
 
 @login_required
 def update_user(request):
