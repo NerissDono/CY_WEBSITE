@@ -1,183 +1,33 @@
 {% extends 'cyWebsite/base.html' %}
+{% load static %}
+
 {% block content %}
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <!-- Retrait du bouton CY_WEBSITE -->
-      <!-- ...existing navigation links... -->
-    </ul>
-    <form class="form-inline ml-auto d-flex" method="get" action="{% url 'index' %}" style="flex-grow: 1; max-width: 950px;">
-      <input class="form-control" type="search" name="q" placeholder="Rechercher des articles..." aria-label="Search" value="{{ query }}" style="flex-grow: 1;">
-      <button class="btn btn-outline-light ml-2" type="submit">Rechercher</button>
-    </form>
-    <div class="dropdown ml-3">
-      <button class="btn btn-outline-light" type="button" id="filterDropdown" onclick="toggleFilterMenu()">
-        <i class="fas fa-filter"></i> Filtre
-      </button>
-    </div>
-  </div>
-</nav>
+<section id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
 
-<!-- Filter Menu -->
-<div id="filter-menu" class="container mt-3" style="display: none; background-color: #f8f9fa; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-  <div class="row">
-    <div class="col-md-6">
-      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('category-submenu')">
-        Catégories
-      </button>
-      <ul id="category-submenu" class="list-unstyled mt-2" style="display: none;">
-        <li><a href="{% url 'index' %}">Toutes les catégories</a></li>
-        {% for category in categories %}
-        <li><a href="{% url 'index' %}?category={{ category.name }}">{{ category.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div class="col-md-6">
-      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('author-submenu')">
-        Auteurs
-      </button>
-      <ul id="author-submenu" class="list-unstyled mt-2" style="display: none;">
-        <li><a href="{% url 'index' %}">Tous les auteurs</a></li>
-        {% for author in authors %}
-        <li><a href="{% url 'index' %}?author={{ author.name }}">{{ author.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- Articles Section -->
-<div class="container mt-4">
-  <!-- Titre amélioré -->
-  <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #333; text-transform: uppercase; letter-spacing: 2px;">Articles récents</h1>
-  
-  <div class="row mt-4" id="articles-container">
-    {% for article in articles %}
-    <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" onclick="expandArticle({{ article.id }})" style="cursor: pointer;">
-      <div class="card shadow h-100">
-        <img src="{{ article.cover.url }}" class="card-img-top article-image" alt="Image de couverture">
-        <div class="card-body text-center">
-          <p class="text-muted" style="color: #555;"><strong>Auteur :</strong> {{ article.author.name }}</p>
-          <h5 class="card-title" style="text-decoration: underline; font-size: 1.5rem; color: #333;">
-            {{ article.title }}
-          </h5>
-          <p id="article-preview-{{ article.id }}" class="card-text" style="font-size: 1rem; color: #333;">
-            {{ article.content|truncatewords:20 }}
-          </p>
-          <p id="article-full-{{ article.id }}" class="card-text article-content" style="font-size: 1rem; display: none; color: #333;">
-            {{ article.content }}
-          </p>
-          <button class="btn btn-primary" onclick="toggleFullArticle({{ article.id }})">Lire plus</button>
-        </div>
-      </div>
+  <div class="carousel-inner">
+    {% for i in list %}
+    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+      <img src="{% static 'images/image' %}{{ i }}.png" class="d-block w-100 blur-effect uniform-size" alt="Slide {{ i }}">
     </div>
     {% endfor %}
-  </div>
-</div>
-
-<!-- Expanded Article Modal -->
-<div id="expanded-article-container" style="display: none;">
-  <div id="blurred-background" class="blurred-background"></div>
-  <div id="expanded-article" class="card shadow">
-    <button class="btn btn-danger" style="position: absolute; top: 10px; right: 10px;" onclick="closeExpandedArticle()">Fermer</button>
-    <div class="card-body text-center" style="overflow-y: auto; max-height: 80vh;">
-      <img id="expanded-article-image" src="" class="img-fluid expanded-article-image mb-3" alt="Image de couverture">
-      <p id="expanded-article-author" class="text-muted" style="color: #555;"></p>
-      <h5 id="expanded-article-title" class="card-title" style="text-decoration: underline; font-size: 2rem; color: #333;"></h5>
-      <p id="expanded-article-content" class="card-text" style="font-size: 1.2rem; color: #333;"></p>
+    <div class="container ">
+      <div class="row">
+         <div class="col-md-6 col-lg-12">
+            <div class="moi">
+               <h2 class="lead">Bienvenue à StarCity</h2>
+               <p class="plead">La ville où votre bien être passe avant tout.</p>
+            </div>
+         </div>
+      </div>
     </div>
+ 
   </div>
-</div>
 
-<script>
-  // Expand article function
-  function expandArticle(articleId) {
-    const articleCard = document.getElementById(`article-card-${articleId}`);
-    const rect = articleCard.getBoundingClientRect(); // Get the position of the article
-    const expandedContainer = document.getElementById('expanded-article-container');
-    const blurredBackground = document.getElementById('blurred-background');
-    const expandedArticle = document.getElementById('expanded-article');
+  <ol class="carousel-indicators">
+    {% for i in list %}
+    <li data-target="#carouselExampleIndicators" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></li>
+    {% endfor %}
+  </ol>
 
-    // Set initial position and size for animation
-    expandedContainer.style.display = 'flex';
-    expandedContainer.style.position = 'fixed';
-    expandedContainer.style.top = '0';
-    expandedContainer.style.left = '0';
-    expandedContainer.style.width = '100vw';
-    expandedContainer.style.height = '100vh';
-    expandedContainer.style.justifyContent = 'center';
-    expandedContainer.style.alignItems = 'center';
-
-    // Show blurred background
-    blurredBackground.style.display = 'block';
-
-    // Populate the expanded article content
-    const title = articleCard.querySelector('.card-title').innerText;
-    const author = articleCard.querySelector('.text-muted').innerText;
-    const image = articleCard.querySelector('.article-image').src;
-    const content = document.getElementById(`article-full-${articleId}`).innerText;
-
-    document.getElementById('expanded-article-title').innerText = title;
-    document.getElementById('expanded-article-author').innerText = author;
-    document.getElementById('expanded-article-image').src = image;
-    document.getElementById('expanded-article-content').innerText = content;
-
-    // Animate the expanded article
-    expandedArticle.style.transition = 'transform 0.5s ease';
-    expandedArticle.style.transform = 'scale(1)';
-    expandedArticle.style.width = '80%';
-    expandedArticle.style.margin = 'auto';
-    expandedArticle.style.backgroundColor = 'white';
-    expandedArticle.style.padding = '20px';
-    expandedArticle.style.borderRadius = '10px';
-  }
-
-  // Close expanded article
-  function closeExpandedArticle() {
-    const expandedContainer = document.getElementById('expanded-article-container');
-    const blurredBackground = document.getElementById('blurred-background');
-    const articlesContainer = document.getElementById('articles-container');
-
-    // Reset the expanded container
-    expandedContainer.style.display = 'none';
-
-    // Hide blurred background
-    blurredBackground.style.display = 'none';
-
-    // Reset the expanded article
-    const expandedArticle = document.getElementById('expanded-article');
-    expandedArticle.style.transform = 'scale(0.8)';
-  }
-
-  // Toggle the filter menu
-  function toggleFilterMenu() {
-    const filterMenu = document.getElementById('filter-menu');
-    filterMenu.style.display = filterMenu.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // Toggle the submenu
-  function toggleSubMenu(subMenuId) {
-    const subMenu = document.getElementById(subMenuId);
-    subMenu.style.display = subMenu.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // Toggle full article visibility
-  function toggleFullArticle(articleId) {
-    const fullArticle = document.getElementById(`article-full-${articleId}`);
-    const preview = document.getElementById(`article-preview-${articleId}`);
-
-    // Toggle between preview and full content
-    if (fullArticle.style.display === 'none') {
-      fullArticle.style.display = 'block';
-      preview.style.display = 'none';
-    } else {
-      fullArticle.style.display = 'none';
-      preview.style.display = 'block';
-    }
-  }
-</script>
+</section>
 {% endblock %}

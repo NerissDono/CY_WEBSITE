@@ -4,7 +4,7 @@ from .views import delete_article
 
 app_name = 'news'
 urlpatterns = [
-    path('', views.accueil, name='accueil'),
+    path('', views.index, name='index'),
     path('information/', views.information, name='information'),
     path('visualisation/', views.visualisation, name='visualisation'),
     path('gestion/', views.gestion, name='gestion'),
