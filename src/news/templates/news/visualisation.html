@@ -38,11 +38,14 @@
         </div>
     </div>
 
-    <div class="no-hover-animation">
-        <h1 class="text-center mt-4">Mon Profil</h1>
-        <div class="card shadow mb-3 no-hover-animation">
+    <div class="no-hover-animation container py-4">
+        <h1 class="text-center mb-4">Mon Profil</h1>
+        <div class="card shadow mb-4 no-hover-animation">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Informations personnelles</h3>
+            </div>
             <div class="card-body">
-                <div class="text-center">
+                <div class="text-center mb-4">
                     <form method="post" action="{% url 'user:update_profile_picture' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <label for="profile_picture_input" style="cursor: pointer;">
@@ -62,7 +65,8 @@
                 <button class="btn btn-warning mt-3" data-toggle="modal" data-target="#editUserInfoModal">Modifier</button>
             </div>
         </div>
-
+        
+        <!-- The rest of the profile page content -->
         {% if user.xp_level in 'complex admin' %}
         <!-- Section pour créer un article -->
         <div class="card shadow mb-3">

@@ -26,6 +26,8 @@
         }
         .content {
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         body {
             background: url("{% static 'back2.jpg' %}") no-repeat center center fixed;
@@ -64,6 +66,77 @@
             transition: all 0.3s ease;
         }
         
+        /* Fix for full-width images */
+        .full-width-img-container {
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .full-width-img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        /* For carousel/slider images */
+        .carousel-item img {
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+        }
+        
+        /* For card images */
+        .card-img-top {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        /* Footer positioning fix */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
+        /* Reduced size carousel */
+        .carousel-item {
+            max-height: 60vh; /* Reduced from full viewport height */
+            overflow: hidden;
+        }
+        
+        .carousel-item img.uniform-size {
+            width: 100%;
+            height: 60vh; /* Reduced height */
+            object-fit: cover;
+        }
+        
+        /* Improved positioning for carousel text */
+        .carousel .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .moi {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -113,16 +186,17 @@
         </div>
     </nav>
 
-    {% block content %}
-    {% endblock %}
-
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
 
     <!-- Footer -->
     <footer class="bg-dark text-center text-white py-3">
         <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
         <p>Contactez-nous à : <a href="mailto:contact@cywebsite.com" class="text-white">contact@cywebsite.com</a></p>
     </footer>
-
+</div>
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
