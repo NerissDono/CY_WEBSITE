@@ -1,4 +1,5 @@
 {% extends 'cyWebsite/base.html' %}
+{% load static %}
 {% block content %}
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -7,177 +8,180 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
-      <!-- Retrait du bouton CY_WEBSITE -->
       <!-- ...existing navigation links... -->
     </ul>
-    <form class="form-inline ml-auto d-flex" method="get" action="{% url 'index' %}" style="flex-grow: 1; max-width: 950px;">
+    <form class="form-inline ml-auto d-flex" method="get" action="{% url 'news:index' %}" style="flex-grow: 1; max-width: 950px;">
       <input class="form-control" type="search" name="q" placeholder="Rechercher des articles..." aria-label="Search" value="{{ query }}" style="flex-grow: 1;">
       <button class="btn btn-outline-light ml-2" type="submit">Rechercher</button>
     </form>
     <div class="dropdown ml-3">
-      <button class="btn btn-outline-light" type="button" id="filterDropdown" onclick="toggleFilterMenu()">
+      <button class="btn btn-outline-light" type="button" data-toggle="modal" data-target="#filterModal">
         <i class="fas fa-filter"></i> Filtre
       </button>
     </div>
   </div>
 </nav>
 
-<!-- Filter Menu -->
-<div id="filter-menu" class="container mt-3" style="display: none; background-color: #f8f9fa; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-  <div class="row">
-    <div class="col-md-6">
-      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('category-submenu')">
-        Catégories
-      </button>
-      <ul id="category-submenu" class="list-unstyled mt-2" style="display: none;">
-        <li><a href="{% url 'index' %}">Toutes les catégories</a></li>
-        {% for category in categories %}
-        <li><a href="{% url 'index' %}?category={{ category.name }}">{{ category.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div class="col-md-6">
-      <button class="btn btn-outline-primary w-100" type="button" onclick="toggleSubMenu('author-submenu')">
-        Auteurs
-      </button>
-      <ul id="author-submenu" class="list-unstyled mt-2" style="display: none;">
-        <li><a href="{% url 'index' %}">Tous les auteurs</a></li>
-        {% for author in authors %}
-        <li><a href="{% url 'index' %}?author={{ author.name }}">{{ author.name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- Articles Section -->
-<div class="container mt-4">
-  <!-- Titre amélioré -->
-  <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #333; text-transform: uppercase; letter-spacing: 2px;">Articles récents</h1>
-  
-  <div class="row mt-4" id="articles-container">
-    {% for article in articles %}
-    <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" onclick="expandArticle({{ article.id }})" style="cursor: pointer;">
-      <div class="card shadow h-100">
-        <img src="{{ article.cover.url }}" class="card-img-top article-image" alt="Image de couverture">
-        <div class="card-body text-center">
-          <p class="text-muted" style="color: #555;"><strong>Auteur :</strong> {{ article.author.name }}</p>
-          <h5 class="card-title" style="text-decoration: underline; font-size: 1.5rem; color: #333;">
-            {{ article.title }}
-          </h5>
-          <p id="article-preview-{{ article.id }}" class="card-text" style="font-size: 1rem; color: #333;">
-            {{ article.content|truncatewords:20 }}
-          </p>
-          <p id="article-full-{{ article.id }}" class="card-text article-content" style="font-size: 1rem; display: none; color: #333;">
-            {{ article.content }}
-          </p>
-          <button class="btn btn-primary" onclick="toggleFullArticle({{ article.id }})">Lire plus</button>
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filterModalLabel">Filtres</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12 mb-3">
+            <h6>Catégories</h6>
+            <div class="list-group">
+              <a href="{% url 'news:index' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                Toutes les catégories
+              </a>
+              {% for category in categories %}
+              <a href="{% url 'news:index' %}?category={{ category.name }}" 
+                 class="list-group-item list-group-item-action {% if selected_category == category.name %}active{% endif %}">
+                {{ category.name }}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="col-12">
+            <h6>Auteurs</h6>
+            <div class="list-group">
+              <a href="{% url 'news:index' %}" class="list-group-item list-group-item-action {% if not selected_author %}active{% endif %}">
+                Tous les auteurs
+              </a>
+              {% for author in authors %}
+              <a href="{% url 'news:index' %}?author={{ author.name }}" 
+                 class="list-group-item list-group-item-action {% if selected_author == author.name %}active{% endif %}">
+                {{ author.name }}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
     </div>
-    {% endfor %}
   </div>
 </div>
 
-<!-- Expanded Article Modal -->
-<div id="expanded-article-container" style="display: none;">
-  <div id="blurred-background" class="blurred-background"></div>
-  <div id="expanded-article" class="card shadow">
-    <button class="btn btn-danger" style="position: absolute; top: 10px; right: 10px;" onclick="closeExpandedArticle()">Fermer</button>
-    <div class="card-body text-center" style="overflow-y: auto; max-height: 80vh;">
-      <img id="expanded-article-image" src="" class="img-fluid expanded-article-image mb-3" alt="Image de couverture">
-      <p id="expanded-article-author" class="text-muted" style="color: #555;"></p>
-      <h5 id="expanded-article-title" class="card-title" style="text-decoration: underline; font-size: 2rem; color: #333;"></h5>
-      <p id="expanded-article-content" class="card-text" style="font-size: 1.2rem; color: #333;"></p>
+<!-- Résultats des actualités -->
+<div class="container mt-4">
+  {% if articles %}
+    <h3 class="text-center mb-4 py-3" style="background-color: #282828; color: white; font-size: 2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+      Résultats de recherche
+    </h3>
+    <div class="row">
+      {% for article in articles %}
+      <div class="col-md-4 mb-4">
+        <div class="card shadow h-100" onclick="showArticleDetail({{ article.id }})" style="cursor: pointer;">
+          {% if article.cover %}
+          <img src="{{ article.cover.url }}" class="card-img-top" alt="Image de couverture">
+          {% else %}
+          <img src="{% static 'default_cover.jpg' %}" class="card-img-top" alt="Image par défaut">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ article.title }}</h5>
+            <p class="card-text">{{ article.content|truncatewords:20 }}</p>
+            <p class="text-muted"><strong>Auteur :</strong> {{ article.author.name }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-muted">Aucun article trouvé pour votre recherche.</p>
+  {% endif %}
+</div>
+
+<!-- Modal pour afficher les détails de l'article -->
+<div class="modal fade" id="articleDetailModal" tabindex="-1" role="dialog" aria-labelledby="articleDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="articleDetailModalLabel">Détails de l'article</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="articleDetailContent">
+        <!-- Le contenu de l'article sera chargé ici via JavaScript -->
+        <div class="text-center">
+          <span class="spinner-border text-primary" role="status"></span>
+          <p>Chargement...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="markAsReadButton" class="btn btn-success" style="display: none;" onclick="markAsRead()">Lu</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Expand article function
-  function expandArticle(articleId) {
-    const articleCard = document.getElementById(`article-card-${articleId}`);
-    const rect = articleCard.getBoundingClientRect(); // Get the position of the article
-    const expandedContainer = document.getElementById('expanded-article-container');
-    const blurredBackground = document.getElementById('blurred-background');
-    const expandedArticle = document.getElementById('expanded-article');
+  let currentArticleId = null;
 
-    // Set initial position and size for animation
-    expandedContainer.style.display = 'flex';
-    expandedContainer.style.position = 'fixed';
-    expandedContainer.style.top = '0';
-    expandedContainer.style.left = '0';
-    expandedContainer.style.width = '100vw';
-    expandedContainer.style.height = '100vh';
-    expandedContainer.style.justifyContent = 'center';
-    expandedContainer.style.alignItems = 'center';
+  function showArticleDetail(articleId) {
+    currentArticleId = articleId;
+    const modalContent = document.getElementById('articleDetailContent');
+    const markAsReadButton = document.getElementById('markAsReadButton');
+    modalContent.innerHTML = `
+      <div class="text-center">
+        <span class="spinner-border text-primary" role="status"></span>
+        <p>Chargement...</p>
+      </div>
+    `;
+    $('#articleDetailModal').modal('show');
 
-    // Show blurred background
-    blurredBackground.style.display = 'block';
-
-    // Populate the expanded article content
-    const title = articleCard.querySelector('.card-title').innerText;
-    const author = articleCard.querySelector('.text-muted').innerText;
-    const image = articleCard.querySelector('.article-image').src;
-    const content = document.getElementById(`article-full-${articleId}`).innerText;
-
-    document.getElementById('expanded-article-title').innerText = title;
-    document.getElementById('expanded-article-author').innerText = author;
-    document.getElementById('expanded-article-image').src = image;
-    document.getElementById('expanded-article-content').innerText = content;
-
-    // Animate the expanded article
-    expandedArticle.style.transition = 'transform 0.5s ease';
-    expandedArticle.style.transform = 'scale(1)';
-    expandedArticle.style.width = '80%';
-    expandedArticle.style.margin = 'auto';
-    expandedArticle.style.backgroundColor = 'white';
-    expandedArticle.style.padding = '20px';
-    expandedArticle.style.borderRadius = '10px';
+    fetch(`/news/article/${articleId}/`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.html) {
+          modalContent.innerHTML = data.html;
+          markAsReadButton.style.display = 'inline-block'; // Show the "Lu" button
+        } else {
+          modalContent.innerHTML = `<p class="text-danger">Une erreur est survenue lors du chargement de l'article.</p>`;
+          markAsReadButton.style.display = 'none';
+        }
+      })
+      .catch(error => {
+        modalContent.innerHTML = `<p class="text-danger">Une erreur est survenue lors du chargement de l'article.</p>`;
+        markAsReadButton.style.display = 'none';
+        console.error('Erreur:', error);
+      });
   }
 
-  // Close expanded article
-  function closeExpandedArticle() {
-    const expandedContainer = document.getElementById('expanded-article-container');
-    const blurredBackground = document.getElementById('blurred-background');
-    const articlesContainer = document.getElementById('articles-container');
+  function markAsRead() {
+    if (!currentArticleId) return;
 
-    // Reset the expanded container
-    expandedContainer.style.display = 'none';
-
-    // Hide blurred background
-    blurredBackground.style.display = 'none';
-
-    // Reset the expanded article
-    const expandedArticle = document.getElementById('expanded-article');
-    expandedArticle.style.transform = 'scale(0.8)';
-  }
-
-  // Toggle the filter menu
-  function toggleFilterMenu() {
-    const filterMenu = document.getElementById('filter-menu');
-    filterMenu.style.display = filterMenu.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // Toggle the submenu
-  function toggleSubMenu(subMenuId) {
-    const subMenu = document.getElementById(subMenuId);
-    subMenu.style.display = subMenu.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // Toggle full article visibility
-  function toggleFullArticle(articleId) {
-    const fullArticle = document.getElementById(`article-full-${articleId}`);
-    const preview = document.getElementById(`article-preview-${articleId}`);
-
-    // Toggle between preview and full content
-    if (fullArticle.style.display === 'none') {
-      fullArticle.style.display = 'block';
-      preview.style.display = 'none';
-    } else {
-      fullArticle.style.display = 'none';
-      preview.style.display = 'block';
-    }
+    fetch(`/news/mark_as_read/${currentArticleId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is included
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Article marqué comme lu. +1 XP !');
+          $('#articleDetailModal').modal('hide');
+        } else {
+          alert('Une erreur est survenue : ' + data.error);
+        }
+      })
+      .catch(error => {
+        alert('Une erreur est survenue.');
+        console.error('Erreur:', error);
+      });
   }
 </script>
 {% endblock %}
+

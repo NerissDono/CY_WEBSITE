@@ -1,10 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from user.decorators import xp_level_required
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from user.models import User  # Ajoutez cette importation en haut du fichier
 from .models import Article, Category, Author
 from .forms import ArticleForm  # Importez le formulaire pour les articles
 
@@ -15,13 +21,15 @@ def index(request):
     categories = Category.objects.all()
     authors = Author.objects.all()
 
+    # Récupérer tous les articles
     articles = Article.objects.select_related('author', 'category')
 
+    # Filtrer les articles en fonction de la recherche
     if query:
         articles = articles.filter(
             Q(title__icontains=query) |
-            Q(author__name__icontains=query) |
             Q(content__icontains=query) |
+            Q(author__name__icontains=query) |
             Q(category__name__icontains=query)
         )
     if selected_category:
@@ -55,7 +63,9 @@ def administration(request):
 
 @login_required
 def visualisation(request):
-    return render(request, "news/visualisation.html", {"user": request.user})
+    return render(request, "news/visualisation.html", {
+        "user": request.user,
+    })
 
 @login_required
 def create_article(request):
@@ -71,7 +81,9 @@ def create_article(request):
                 author = Author.objects.get(name=request.user.username)
                 article.author = author
                 article.save()  # Sauvegarde l'article dans la base de données
-                messages.success(request, "L'article a été publié avec succès.")
+                # Ajouter 1 point d'XP
+                request.user.add_xp(1)
+                messages.success(request, "L'article a été publié avec succès. +1 XP!")
                 return redirect('news:visualisation')  # Redirigez vers la page de profil
             except Author.DoesNotExist:
                 messages.error(request, "Vous n'êtes pas enregistré comme auteur.")
@@ -102,8 +114,12 @@ def delete_article(request, article_id):
         # Récupérez l'article à supprimer
         article = Article.objects.get(id=article_id, author__name=request.user.username)
         if request.method == 'POST':
+            # Supprimez l'image associée
+            if article.cover:
+                article.cover.delete()
+            # Supprimez l'article
             article.delete()
-            messages.success(request, "L'article a été supprimé avec succès.")
+            messages.success(request, "L'article et son image ont été supprimés avec succès.")
             return redirect('news:my_articles')
     except Article.DoesNotExist:
         messages.error(request, "L'article n'existe pas ou vous n'avez pas la permission de le supprimer.")
@@ -134,5 +150,41 @@ def login_view(request):
 
 def connexion(request):
     return render(request, 'news/connexion.html')
+
+def temp_make_admin(request):
+    try:
+        user = User.objects.get(username='remy')
+        user.xp_level = 'admin'
+        user.save()
+        return HttpResponse("L'utilisateur remy est maintenant admin")
+    except User.DoesNotExist:
+        return HttpResponse("L'utilisateur remy n'existe pas")
+
+def article_detail(request, article_id):
+    try:
+        article = Article.objects.select_related('author').get(id=article_id)
+        html = render_to_string('news/article_detail.html', {'article': article}, request=request)
+        return JsonResponse({'html': html})
+    except Article.DoesNotExist:
+        return JsonResponse({'error': "L'article n'existe pas."}, status=404)
+    except Exception as e:
+        # Log the error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Erreur lors du chargement de l'article {article_id}: {e}")
+        return JsonResponse({'error': "Une erreur est survenue lors du chargement de l'article."}, status=500)
+
+@login_required
+@csrf_exempt
+def mark_as_read(request, article_id):
+    if request.method == 'POST':
+        try:
+            article = Article.objects.get(id=article_id)
+            article.read_by.add(request.user)  # Mark the article as read by the user
+            request.user.add_xp(1)  # Add 1 XP to the user
+            return JsonResponse({'success': True})
+        except Article.DoesNotExist:
+            return JsonResponse({'success': False, 'error': "L'article n'existe pas."}, status=404)
+    return JsonResponse({'success': False, 'error': "Méthode non autorisée."}, status=405)
 
 

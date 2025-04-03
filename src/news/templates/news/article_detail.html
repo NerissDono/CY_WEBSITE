@@ -1,0 +1,12 @@
+{% load static %}
+<div>
+  <h2>{{ article.title }}</h2>
+  {% if article.cover %}
+  <img src="{{ article.cover.url }}" alt="Image de couverture" class="img-fluid mb-3">
+  {% else %}
+  <img src="{% static 'default_cover.jpg' %}" alt="Image par défaut" class="img-fluid mb-3">
+  {% endif %}
+  <p>{{ article.content }}</p>
+  <p><strong>Auteur :</strong> {% if article.author %}{{ article.author.name }}{% else %}Inconnu{% endif %}</p>
+  <p><strong>Publié le :</strong> {% if article.published_date %}{{ article.published_date|date:"d/m/Y H:i" }}{% else %}Date inconnue{% endif %}</p>
+</div>

@@ -1,19 +1,24 @@
 {% extends 'cyWebsite/base.html' %}
+{% load static %}
 {% block content %}
 <div class="container mt-5">
     <h1>Mes articles</h1>
     {% if articles %}
         <div class="row mt-4">
             {% for article in articles %}
-            <div class="col-md-4 mb-4 article-card" id="article-card-{{ article.id }}" style="cursor: pointer;">
+            <div class="col-md-4 mb-4">
                 <div class="card shadow h-100">
-                    <img src="{{ article.cover.url }}" class="card-img-top article-image" alt="Image de couverture" onclick="expandArticle({{ article.id }})">
+                    {% if article.cover %}
+                    <img src="{{ article.cover.url }}" class="card-img-top" alt="Image de couverture" onclick="showArticleDetail({{ article.id }})" style="cursor: pointer;">
+                    {% else %}
+                    <img src="{% static 'default_cover.jpg' %}" class="card-img-top" alt="Image par défaut" onclick="showArticleDetail({{ article.id }})" style="cursor: pointer;">
+                    {% endif %}
                     <div class="card-body text-center">
-                        <h5 class="card-title" onclick="expandArticle({{ article.id }})">{{ article.title }}</h5>
-                        <p class="card-text" onclick="expandArticle({{ article.id }})">{{ article.content|truncatewords:20 }}</p>
+                        <h5 class="card-title" onclick="showArticleDetail({{ article.id }})" style="cursor: pointer;">{{ article.title }}</h5>
+                        <p class="card-text">{{ article.content|truncatewords:20 }}</p>
                         <small class="text-muted">Publié le {{ article.published_date|date:"d/m/Y H:i" }}</small>
                         <div class="mt-3">
-                            <button class="btn btn-danger" onclick="showConfirmation({{ article.id }}, '{{ article.title }}')">Supprimer</button>
+                            <button class="btn btn-danger btn-sm" onclick="showDeleteConfirmation({{ article.id }}, '{{ article.title }}')">Supprimer</button>
                         </div>
                     </div>
                 </div>
@@ -21,90 +26,97 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-muted">Vous n'avez pas encore écrit d'articles.</p>
+        <p class="text-center text-muted">Vous n'avez publié aucun article.</p>
     {% endif %}
 </div>
 
-<!-- Expanded Article Modal -->
-<div id="expanded-article-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div id="expanded-article" class="card shadow" style="transform: scale(0.8); opacity: 0; transition: transform 0.5s ease, opacity 0.5s ease; width: 80%; max-height: 80vh; overflow-y: auto; background: white; border-radius: 10px; padding: 20px;">
-        <button class="btn btn-danger" style="position: absolute; top: 10px; right: 10px;" onclick="closeExpandedArticle()">Fermer</button>
-        <div class="card-body text-center">
-            <img id="expanded-article-image" src="" class="img-fluid mb-3" alt="Image de couverture">
-            <h5 id="expanded-article-title" class="card-title" style="text-decoration: underline; font-size: 2rem;"></h5>
-            <p id="expanded-article-content" class="card-text" style="font-size: 1.2rem;"></p>
+<!-- Modal pour afficher les détails de l'article -->
+<div class="modal fade" id="articleDetailModal" tabindex="-1" role="dialog" aria-labelledby="articleDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="articleDetailModalLabel">Détails de l'article</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="articleDetailContent">
+        <!-- Le contenu de l'article sera chargé ici via JavaScript -->
+        <div class="text-center">
+          <span class="spinner-border text-primary" role="status"></span>
+          <p>Chargement...</p>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div id="delete-confirmation" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div class="card shadow p-4" style="width: 400px; background: white; border-radius: 10px;">
-        <h5 class="text-center">Confirmation de suppression</h5>
-        <p class="text-center">Êtes-vous sûr de vouloir supprimer l'article "<strong id="article-title"></strong>" ?</p>
-        <form id="delete-form" method="post" action="">
-            {% csrf_token %}
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-danger">Oui, supprimer</button>
-                <button type="button" class="btn btn-secondary" onclick="hideConfirmation()">Annuler</button>
-            </div>
+<!-- Modal pour confirmer la suppression -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmation de suppression</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer l'article "<strong id="deleteArticleTitle"></strong>" ?</p>
+        <form id="deleteArticleForm" method="post" action="">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
         </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    function expandArticle(articleId) {
-        const articleCard = document.getElementById(`article-card-${articleId}`);
-        const expandedContainer = document.getElementById('expanded-article-container');
-        const expandedArticle = document.getElementById('expanded-article');
+  function showArticleDetail(articleId) {
+    const modalContent = document.getElementById('articleDetailContent');
+    modalContent.innerHTML = `
+      <div class="text-center">
+        <span class="spinner-border text-primary" role="status"></span>
+        <p>Chargement...</p>
+      </div>
+    `;
+    $('#articleDetailModal').modal('show');
 
-        // Populate the expanded article content
-        const title = articleCard.querySelector('.card-title').innerText;
-        const image = articleCard.querySelector('.article-image').src;
-        const content = articleCard.querySelector('.card-text').innerText;
+    fetch(`/news/article/${articleId}/`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.html) {
+          modalContent.innerHTML = data.html;
 
-        document.getElementById('expanded-article-title').innerText = title;
-        document.getElementById('expanded-article-image').src = image;
-        document.getElementById('expanded-article-content').innerText = content;
+          // Dynamically set the delete button's action
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'btn btn-danger mt-3';
+          deleteButton.textContent = 'Supprimer';
+          deleteButton.onclick = () => showDeleteConfirmation(articleId, document.querySelector('#articleDetailModal h2').textContent);
+          modalContent.appendChild(deleteButton);
+        } else {
+          modalContent.innerHTML = `<p class="text-danger">Une erreur est survenue lors du chargement de l'article.</p>`;
+        }
+      })
+      .catch(error => {
+        modalContent.innerHTML = `<p class="text-danger">Une erreur est survenue lors du chargement de l'article.</p>`;
+        console.error('Erreur:', error);
+      });
+  }
 
-        // Show the expanded article container
-        expandedContainer.style.display = 'flex';
+  function showDeleteConfirmation(articleId, articleTitle) {
+    const modal = document.getElementById('deleteConfirmationModal');
+    const titleElement = document.getElementById('deleteArticleTitle');
+    const form = document.getElementById('deleteArticleForm');
 
-        // Trigger animation
-        expandedArticle.style.transform = 'scale(1)';
-        expandedArticle.style.opacity = '1';
-    }
+    // Set the article title and form action
+    titleElement.textContent = articleTitle;
+    form.action = "{% url 'news:delete_article' 0 %}".replace('0', articleId);
 
-    function closeExpandedArticle() {
-        const expandedContainer = document.getElementById('expanded-article-container');
-        const expandedArticle = document.getElementById('expanded-article');
-
-        // Reset animation
-        expandedArticle.style.transform = 'scale(0.8)';
-        expandedArticle.style.opacity = '0';
-
-        // Hide the expanded container after animation
-        setTimeout(() => {
-            expandedContainer.style.display = 'none';
-        }, 500); // Match the duration of the CSS transition
-    }
-
-    function showConfirmation(articleId, articleTitle) {
-        const modal = document.getElementById('delete-confirmation');
-        const titleElement = document.getElementById('article-title');
-        const form = document.getElementById('delete-form');
-
-        // Set the article title and form action
-        titleElement.textContent = articleTitle;
-        form.action = "{% url 'news:delete_article' 0 %}".replace('0', articleId);
-
-        // Show the modal
-        modal.style.display = 'flex';
-    }
-
-    function hideConfirmation() {
-        const modal = document.getElementById('delete-confirmation');
-        modal.style.display = 'none';
-    }
+    // Show the modal
+    $('#deleteConfirmationModal').modal('show');
+  }
 </script>
 {% endblock %}

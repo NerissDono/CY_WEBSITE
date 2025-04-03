@@ -25,10 +25,21 @@ class Author(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     content = models.TextField(verbose_name="Contenu")
-    cover = models.ImageField(upload_to='data/covers/', verbose_name="Image de couverture", blank=True, null=True)
+    cover = models.ImageField(
+        upload_to='article_covers/',
+        blank=True,  # Allow blank values
+        null=True,   # Allow null values
+        help_text="Téléchargez une image de couverture pour l'article (optionnel)."
+    )
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, verbose_name="Catégorie")
     author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name="Auteur")
     published_date = models.DateTimeField(auto_now_add=True, verbose_name="Date de publication")
+    read_by = models.ManyToManyField(
+        'user.User',
+        related_name='read_articles',
+        blank=True,
+        verbose_name="Utilisateurs ayant lu l'article"
+    )
 
     def __str__(self):
         return self.title
