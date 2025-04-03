@@ -39,6 +39,22 @@ class User(AbstractUser):
         null=True,
         help_text="Entrez votre date de naissance (format : DD-MM-YYYY)."
     )
+    xp_points = models.IntegerField(default=0)
+    login_count = models.IntegerField(default=0, help_text="Nombre de connexions de l'utilisateur.")
+
+    def add_xp(self, points):
+        self.xp_points += points
+        if self.xp_points >= 10:
+            if self.xp_level == 'simple':
+                self.xp_level = 'intermediate'
+            elif self.xp_level == 'intermediate':
+                self.xp_level = 'complex'
+            elif self.xp_level == 'complex':
+                self.xp_level = 'admin'
+            self.xp_points = 0  # Reset XP points after leveling up
+        if self.xp_level == 'admin':  # Cap XP at 10/10 for admins
+            self.xp_points = min(self.xp_points, 10)
+        self.save()
 
     class Meta:
         verbose_name = "Utilisateur"
