@@ -79,14 +79,16 @@
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}"><i class="fas fa-user"></i> Profil</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}"><i class="fas fa-plug"></i> Objets Connectés</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'news:index' %}"><i class="fas fa-newspaper"></i> Actualités</a> </li>
-                {% if user.xp_level in 'complex admin' %}
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'news:index' %}"><i class="fas fa-newspaper"></i> Actualités</a></li>
+                {% if user.is_authenticated and user.xp_level in 'complex admin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}"><i class="fas fa-cogs"></i> Gestion</a></li>
                 {% endif %}
-                {% if user.xp_level == 'admin' %}
+                {% if user.is_authenticated and user.xp_level == 'admin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}"><i class="fas fa-shield-alt"></i> Administration</a></li>
                 {% endif %}
-                <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-cogs"></i> Admin Django</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-cogs"></i> Admin Django</a></li>
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">

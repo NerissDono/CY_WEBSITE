@@ -1,0 +1,4 @@
+.no-hover-animation *:hover {
+  animation: none !important;
+  transition: none !important;
+}
