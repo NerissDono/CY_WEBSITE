@@ -1,6 +1,6 @@
-from django.db import models
-from datetime import datetime
 import unicodedata
+from datetime import datetime
+from django.db import models
 
 
 class ObjConnecte(models.Model):
@@ -23,23 +23,36 @@ class ObjConnecte(models.Model):
     def statut_dynamique(self):
         heure = datetime.now().hour
 
-        # Supprimer les accents et mettre en minuscule
         def normalize(txt):
             return unicodedata.normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8').lower()
 
         type_nom = normalize(self.type.name)
 
-        if type_nom == 'lampadaires':
-            if not self.connected:
-                return "En panne (technicien requis)" if self.attente_technicien else "Déconnecté"
-            elif heure >= 20 or heure < 6:
-                return "Allumé" if self.state else "Éteint (manuel)"
+        if not self.connected:
+            return "En panne (technicien requis)" if self.attente_technicien else "Déconnecté"
+
+        if not self.state:
+            if type_nom == "lampadaires":
+                return "Éteint (manuel)" if heure >= 20 or heure < 6 else "Éteint (jour)"
+            elif type_nom == "feux tricolores":
+                return "Désactivé"
+            elif type_nom == "caméras":
+                return "Hors service"
+            elif type_nom == "capteurs de pollution":
+                return "En veille"
+            elif type_nom == "trottinettes electriques":
+                return "Stationnée"
             else:
-                return "Éteint (jour)"
+                return "Inactif"
+
+        # Si l'objet est actif et connecté :
+        if type_nom == "lampadaires":
+            return "Allumé" if heure >= 20 or heure < 6 else "Éteint (jour)"
 
         elif type_nom == 'feux tricolores':
             total_cycle = 40
-            seconds = datetime.now().second % total_cycle
+            total_seconds = datetime.now().timestamp()  # temps en secondes depuis 1970
+            seconds = int(total_seconds) % total_cycle
             if seconds < 20:
                 return "Vert"
             elif seconds < 25:
@@ -47,21 +60,14 @@ class ObjConnecte(models.Model):
             else:
                 return "Rouge"
 
-        elif type_nom == 'cameras':
-            if not self.connected:
-                return "Hors service" if self.attente_technicien else "Déconnectée"
+        elif type_nom == "caméras":
             return "Fonctionnelle"
 
-        elif type_nom == 'capteurs de pollution':
-            return "Mesure active" if self.connected else "Déconnecté"
+        elif type_nom == "capteurs de pollution":
+            return "Mesure active"
 
-        elif type_nom == 'trottinettes electriques':
-            if not self.connected:
-                return "Hors ligne"
-            elif self.state:
-                return "En circulation"
-            else:
-                return "Stationnée"
+        elif type_nom == "trottinettes electriques":
+            return "En circulation"
 
         return "Statut inconnu"
 
