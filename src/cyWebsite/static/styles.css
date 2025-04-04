@@ -28,16 +28,28 @@ h1 {
 
 .moi {
     position: relative;
-    top: 150%;
-    left: -5;
-    transform: translateY(-50%);
     text-align: left;
     color: #fff; /* Augmente la taille de la police */
     line-height: 1.5; /* Ajuste l'espacement entre les lignes */
     margin: 20px 0; /* Ajoute de l'espace autour */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Ajoute une ombre au texte */
-    padding: 20px;
+   
 }
+.moi a{
+    font-size: x-large;
+}
+
+#meteo {
+    color: #000;
+    text-align: center;
+    background-color: white; /* Fond blanc */
+    padding: 20px; /* Ajoute de l'espace à l'intérieur du rectangle */
+    border-radius: 15px; /* Bords arrondis */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ajoute une ombre légère */
+    margin: 20px auto; /* Centre horizontalement et ajoute de l'espace autour */
+    width: fit-content; /* Ajuste la largeur au contenu */
+}
+
 
 .lead {
     font-size: 78px;

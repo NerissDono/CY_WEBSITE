@@ -16,8 +16,21 @@
             <div class="moi">
                <h2 class="lead">Bienvenue à StarCity</h2>
                <p class="plead">La ville où votre bien être passe avant tout.</p>
+              {% if not user.is_authenticated %}
+              <a class="btn btn-light btn-radius grd1 btn-brd" href="{% url 'news:index' %}"><i class="fas fa-arrow-right"></i> Visit</a>
+              {% endif %}
             </div>
          </div>
+      </div>
+      <div class="col-lg-12">
+        <div id="meteo">
+        {% if weather_data %}
+            <h2 style="color: blue">{{ weather_data.city }}</h2>
+            <h2>{{ weather_data.temp }}°C</h2>
+            <p>{{ weather_data.description }}</p>
+            <img src="http://openweathermap.org/img/w/{{ weather_data.icon }}.png" alt="{{ weather_data.description }}">
+        {% endif %}
+        </div>
       </div>
     </div>
  
@@ -30,4 +43,5 @@
   </ol>
 
 </section>
+
 {% endblock %}
