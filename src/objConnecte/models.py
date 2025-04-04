@@ -7,7 +7,7 @@ class ObjConnecte(models.Model):
     description = models.TextField(verbose_name='Description')
     image = models.ImageField(upload_to='data/objConnecte_images/', default='data/objConnecte_images/default.jpg', verbose_name='Image')
     date = models.DateTimeField(auto_now_add=True)
-    state = models.BooleanField(default=False, verbose_name='Etat')
+    state = models.BooleanField(default=False, verbose_name='État')
     connected = models.BooleanField(default=False, verbose_name='Connecté')
     attente_technicien = models.BooleanField(default=False, verbose_name='Attente d’un technicien')
     ip = models.GenericIPAddressField(verbose_name='Adresse IP', default='127.0.0.1')
