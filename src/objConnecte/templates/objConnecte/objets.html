@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    {% csrf_token %}  <!-- Ajout du token CSRF ici -->
+    {% csrf_token %}
     <h1 class="text-center mb-4">Équipements Connectés de la Ville</h1>
-    
+
     <!-- Barre de recherche et filtres -->
     <div class="card shadow mb-4">
         <div class="card-body">
             <form class="row" method="get">
                 <div class="col-md-6 mb-2">
-                    <input type="text" class="form-control" name="search" placeholder="Rechercher un équipement..." 
+                    <input type="text" class="form-control" name="search" placeholder="Rechercher un équipement..."
                            value="{{ request.GET.search|default:'' }}">
                 </div>
                 <div class="col-md-3 mb-2">
@@ -61,6 +61,9 @@
                                     {{ objet.state|yesno:"Actif,Inactif" }}
                                 </span>
                             </p>
+                            <p><strong>Statut dynamique :</strong> 
+                                <span class="font-weight-bold text-info statut-dynamique">{{ objet.statut_dynamique }}</span>
+                            </p>
                             <p class="text-muted">{{ objet.description|truncatechars:100 }}</p>
                         </div>
                         <div class="card-footer bg-white">
@@ -83,38 +86,28 @@
         {% endif %}
     </div>
 
-    <!-- Pagination (optionnelle) -->
+    <!-- Pagination -->
     {% if objets.has_other_pages %}
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination justify-content-center">
             {% if objets.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ objets.previous_page_number }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">Précédent</a>
-                </li>
+                <li class="page-item"><a class="page-link" href="?page={{ objets.previous_page_number }}">Précédent</a></li>
             {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">Précédent</span>
-                </li>
+                <li class="page-item disabled"><span class="page-link">Précédent</span></li>
             {% endif %}
 
             {% for i in objets.paginator.page_range %}
                 {% if objets.number == i %}
                     <li class="page-item active"><span class="page-link">{{ i }}</span></li>
                 {% else %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ i }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">{{ i }}</a>
-                    </li>
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
                 {% endif %}
             {% endfor %}
 
             {% if objets.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ objets.next_page_number }}&search={{ request.GET.search|default:'' }}&type={{ request.GET.type|default:'' }}&status={{ request.GET.status|default:'' }}">Suivant</a>
-                </li>
+                <li class="page-item"><a class="page-link" href="?page={{ objets.next_page_number }}">Suivant</a></li>
             {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">Suivant</span>
-                </li>
+                <li class="page-item disabled"><span class="page-link">Suivant</span></li>
             {% endif %}
         </ul>
     </nav>
@@ -125,14 +118,11 @@
     // Script pour activer/désactiver un objet connecté via AJAX
     document.querySelectorAll('.toggle-state').forEach(button => {
         button.addEventListener('click', function(event) {
-            event.preventDefault(); // Empêcher la propagation du clic
-            
+            event.preventDefault();
             const objectId = this.getAttribute('data-id');
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            // Désactiver le bouton pendant la requête
             this.disabled = true;
-            
+
             fetch(`/objets_connectés/api/toggle-state/${objectId}/`, {
                 method: 'POST',
                 headers: {
@@ -144,18 +134,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Mettre à jour le texte du bouton
                     this.textContent = data.state ? "Désactiver" : "Activer";
-                    
-                    // Mettre à jour l'affichage de l'état de façon plus robuste
                     const card = this.closest('.card');
-                    // Trouver tous les paragraphes dans cette carte
                     const allParagraphs = card.querySelectorAll('p');
-                    
-                    // Parcourir les paragraphes pour trouver celui qui contient "État:"
                     allParagraphs.forEach(p => {
                         if (p.textContent.includes('État:')) {
-                            // Trouvé le bon paragraphe, maintenant cibler le span à l'intérieur
                             const span = p.querySelector('span');
                             if (span) {
                                 span.textContent = data.state ? "Actif" : "Inactif";
@@ -163,7 +146,6 @@
                             }
                         }
                     });
-                    
                     alert(`État changé avec succès: ${data.state ? "Actif" : "Inactif"}`);
                 } else {
                     alert("Erreur: " + data.message);
@@ -171,13 +153,31 @@
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                alert("Une erreur est survenue lors de la modification de l'état.");
+                alert("Une erreur est survenue.");
             })
             .finally(() => {
                 this.disabled = false;
             });
         });
     });
+
+    // 🔄 Mise à jour automatique des statuts dynamiques toutes les 10 secondes
+    setInterval(function () {
+        fetch(window.location.href, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(html, 'text/html');
+            const newStatuses = newDoc.querySelectorAll('.statut-dynamique');
+            const currentStatuses = document.querySelectorAll('.statut-dynamique');
+
+            newStatuses.forEach((newEl, i) => {
+                currentStatuses[i].innerHTML = newEl.innerHTML;
+            });
+        });
+    }, 10000);
 </script>
 {% endblock %}
 
