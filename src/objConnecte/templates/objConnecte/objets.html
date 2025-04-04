@@ -62,7 +62,13 @@
                                 </span>
                             </p>
                             <p><strong>Statut dynamique :</strong> 
-                                <span class="font-weight-bold text-info statut-dynamique">{{ objet.statut_dynamique }}</span>
+                                <span class="font-weight-bold statut-dynamique 
+                                    {% if objet.statut_dynamique == 'Vert' %}text-success
+                                    {% elif objet.statut_dynamique == 'Orange' %}text-warning
+                                    {% elif objet.statut_dynamique == 'Rouge' %}text-danger
+                                    {% else %}text-info{% endif %}">
+                                    {{ objet.statut_dynamique }}
+                                </span>
                             </p>
                             <p class="text-muted">{{ objet.description|truncatechars:100 }}</p>
                         </div>
@@ -172,9 +178,15 @@
             const newDoc = parser.parseFromString(html, 'text/html');
             const newStatuses = newDoc.querySelectorAll('.statut-dynamique');
             const currentStatuses = document.querySelectorAll('.statut-dynamique');
-
+    
             newStatuses.forEach((newEl, i) => {
+                // Met à jour le texte
                 currentStatuses[i].innerHTML = newEl.innerHTML;
+    
+                // Met à jour la classe de couleur
+                const baseClass = 'font-weight-bold statut-dynamique';
+                const newColorClass = newEl.className.replace(baseClass, '').trim();
+                currentStatuses[i].className = `${baseClass} ${newColorClass}`;
             });
         });
     }, 10000);
