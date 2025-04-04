@@ -118,7 +118,7 @@ def update_user(request):
             messages.error(request, "Une erreur est survenue lors de la mise à jour de vos informations. Veuillez vérifier les champs.")
     else:
         form = CustomUpdateUserForm(instance=request.user)
-    return render(request, 'news/visualisation.html', {'form': form, 'user': request.user})
+    return render(request, 'news/visualisation.html', {'form': form, 'user': request.user, 'pourcentage': request.user.pourcentage_xp()})
 
 @login_required
 def update_profile_picture(request):

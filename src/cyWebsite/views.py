@@ -14,8 +14,8 @@ def fetch_weather():
     city_name = "Saint-Quentin"
     #url = "https://my.meteoblue.com/packages/basic-1h_basic-day?apikey=LhTqBxJAtocyRmui&lat=49.0588&lon=2.19113&asl=67&format=json"
     source =urllib.request.urlopen('https://api.openweathermap.org/data/2.5/weather?q=batman&appid=fcedc13048dfa3741250c40742cb18cc&units=metric').read()
-    list_of_data= json.loads(source)   
-    print(list_of_data)
+    list_of_data= json.loads(source) 
+
     data = {
     "country_code": str(list_of_data['sys']['country']),
     "coordinate": str(list_of_data['coord']['lon']) + ' ' 

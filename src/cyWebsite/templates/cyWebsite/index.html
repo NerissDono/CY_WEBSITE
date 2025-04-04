@@ -7,7 +7,7 @@
   <div class="carousel-inner">
     {% for i in list %}
     <div class="carousel-item {% if forloop.first %}active{% endif %}">
-      <img src="{% static 'images/image' %}{{ i }}.png" class="d-block w-100 blur-effect uniform-size" alt="Slide {{ i }}">
+      <img src="{% static 'images/image' %}{{ i }}.png" class="d-block w-100 blur-effect uniform-size img-fluid" alt="Slide {{ i }}">
     </div>
     {% endfor %}
     <div class="container ">

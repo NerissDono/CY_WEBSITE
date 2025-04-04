@@ -30,7 +30,7 @@
             flex-direction: column;
         }
         body {
-            background: url("{% static 'back2.jpg' %}") no-repeat center center fixed;
+            background: url("{% static 'back3.png' %}") no-repeat center center fixed;
             background-size: cover;
         }
 
@@ -146,17 +146,18 @@
         </div>
     </nav>
 
-    <div class="content">
+    
         {% block content %}
         {% endblock %}
-    </div>
+    
 
+
+</div>
     <!-- Footer -->
     <footer class="bg-dark text-center text-white py-3">
         <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
         <p>Contactez-nous à : <a href="mailto:contact@cywebsite.com" class="text-white">contact@cywebsite.com</a></p>
     </footer>
-</div>
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

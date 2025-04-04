@@ -41,6 +41,9 @@ class User(AbstractUser):
     )
     xp_points = models.IntegerField(default=0)
     login_count = models.IntegerField(default=0, help_text="Nombre de connexions de l'utilisateur.")
+    
+    def pourcentage_xp(self):
+        return int((self.xp_points / 10) * 100)
 
     def add_xp(self, points):
         self.xp_points += points

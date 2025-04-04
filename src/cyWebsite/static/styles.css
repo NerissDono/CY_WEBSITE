@@ -22,7 +22,7 @@ h1 {
 
   .uniform-size {
     width: 100%;
-    height: 625px; /* Ajustez la hauteur selon vos besoin */
+    height: 100vh ; /* Ajustez la hauteur selon vos besoin */
     object-fit: cover;
   }
 
@@ -49,7 +49,17 @@ h1 {
     margin: 20px auto; /* Centre horizontalement et ajoute de l'espace autour */
     width: fit-content; /* Ajuste la largeur au contenu */
 }
-
+.head_index{
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    position: relative;
+}
 
 .lead {
     font-size: 78px;
@@ -61,6 +71,27 @@ h1 {
 
 .navbar-nav .nav-link {
     font-weight: bold; /* Titres en gras */
+}
+
+#progression {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80%;
+    height: 20px;
+}
+#progression::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+#progression::-webkit-progress-value {
+    background-color: #4caf50;
+    border-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) outset;
+}
+.progress{
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+    width: 50%;
 }
 
 #equipment-list {
