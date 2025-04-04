@@ -1,5 +1,7 @@
 from django.db import models
 from datetime import datetime
+import unicodedata
+
 
 class ObjConnecte(models.Model):
     name = models.CharField(max_length=100, verbose_name='Nom')
@@ -20,7 +22,12 @@ class ObjConnecte(models.Model):
     @property
     def statut_dynamique(self):
         heure = datetime.now().hour
-        type_nom = self.type.name.lower()
+
+        # Supprimer les accents et mettre en minuscule
+        def normalize(txt):
+            return unicodedata.normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8').lower()
+
+        type_nom = normalize(self.type.name)
 
         if type_nom == 'lampadaires':
             if not self.connected:
@@ -40,13 +47,21 @@ class ObjConnecte(models.Model):
             else:
                 return "Rouge"
 
-        elif type_nom == 'caméras':
+        elif type_nom == 'cameras':
             if not self.connected:
                 return "Hors service" if self.attente_technicien else "Déconnectée"
             return "Fonctionnelle"
 
         elif type_nom == 'capteurs de pollution':
             return "Mesure active" if self.connected else "Déconnecté"
+
+        elif type_nom == 'trottinettes electriques':
+            if not self.connected:
+                return "Hors ligne"
+            elif self.state:
+                return "En circulation"
+            else:
+                return "Stationnée"
 
         return "Statut inconnu"
 
