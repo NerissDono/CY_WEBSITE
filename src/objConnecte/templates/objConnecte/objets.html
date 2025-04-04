@@ -41,6 +41,15 @@
         </div>
     </div>
 
+    <!-- Bouton pour créer un objet connecté -->
+    {% if user.xp_level in 'complex admin' %}
+    <div class="text-right mb-3">
+        <a href="{% url 'objConnecte:create_object' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Créer un objet connecté
+        </a>
+    </div>
+    {% endif %}
+
     <!-- Liste des objets -->
     <div class="row">
         {% if objets %}
@@ -74,9 +83,17 @@
                         </div>
                         <div class="card-footer bg-white">
                             <a href="{% url 'objConnecte:objet' objet.id %}" class="btn btn-primary btn-sm">Détails</a>
-                            {% if user.xp_level != 'simple' %}
-                                <button class="btn btn-outline-success btn-sm toggle-state" data-id="{{ objet.id }}" data-state="{{ objet.state|yesno:'true,false' }}">
-                                    {{ objet.state|yesno:"Désactiver,Activer" }}
+                            {% if user.xp_level in 'complex admin' %}
+                                <a href="{% url 'objConnecte:edit_object' objet.id %}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm toggle-highlight" data-id="{{ objet.id }}" style="background-color: {% if objet.highlighted %}red{% else %}transparent{% endif %};">
+                                    <i class="fas fa-flag"></i> Marquer
+                                </button>
+                            {% endif %}
+                            {% if user.xp_level == 'admin' %}
+                                <button class="btn btn-danger btn-sm delete-object" data-id="{{ objet.id }}">
+                                    <i class="fas fa-trash"></i> Supprimer
                                 </button>
                             {% endif %}
                         </div>
@@ -190,6 +207,72 @@
             });
         });
     }, 10000);
+</script>
+
+
+<script>
+    // Script pour gérer le bouton "Marquer"
+    document.querySelectorAll('.toggle-highlight').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const objectId = this.getAttribute('data-id');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/objets_connectés/api/toggle-highlight/${objectId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.style.backgroundColor = data.highlighted ? 'red' : 'transparent';
+                } else {
+                    alert("Erreur: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Une erreur est survenue.");
+            });
+        });
+    });
+
+    // Script pour gérer le bouton "Supprimer"
+    document.querySelectorAll('.delete-object').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            if (!confirm("Êtes-vous sûr de vouloir supprimer cet objet ?")) return;
+
+            const objectId = this.getAttribute('data-id');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(`/objets_connectés/api/delete-object/${objectId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Erreur: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert("Une erreur est survenue.");
+            });
+        });
+    });
 </script>
 {% endblock %}
 

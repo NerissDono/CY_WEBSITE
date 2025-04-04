@@ -1,11 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import ObjConnecte, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import ObjConnecteForm  # Assume a form exists for ObjConnecte creation
+from user.decorators import xp_level_required
 from .models import Type
+import os
+from django.conf import settings
+import json
 
 def index(request):
     # Statistiques pour la page d'accueil
@@ -91,7 +97,7 @@ def toggle_state(request, id):
     try:
         obj = ObjConnecte.objects.get(id=id)
         # Vérification des permissions
-        if request.user.xp_level not in ['intermediate', 'complex', 'admin']:
+        if request.user.xp_level not in ['complex', 'admin']:
             return JsonResponse({'success': False, 'message': 'Permissions insuffisantes'}, status=403)
         
         # Changement d'état
@@ -136,8 +142,32 @@ def refresh_state(request, id):
 
 @login_required
 @require_POST
+def toggle_highlight(request, id):
+    """Permet de marquer ou démarquer un objet connecté."""
+    try:
+        obj = ObjConnecte.objects.get(id=id)
+        # Vérification des permissions
+        if request.user.xp_level not in ['complex', 'admin']:
+            return JsonResponse({'success': False, 'message': 'Permissions insuffisantes'}, status=403)
+        
+        # Changement de l'état "highlighted"
+        obj.highlighted = not obj.highlighted
+        obj.save()
+        
+        return JsonResponse({
+            'success': True,
+            'highlighted': obj.highlighted,
+            'message': f"Objet {'marqué' if obj.highlighted else 'démarqué'} avec succès."
+        })
+    except ObjConnecte.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Objet non trouvé'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+@login_required
+@require_POST
 def delete_object(request, id):
-    """Supprime un objet connecté"""
+    """Supprime un objet connecté (réservé aux administrateurs)."""
     try:
         obj = ObjConnecte.objects.get(id=id)
         # Vérification des permissions
@@ -149,10 +179,66 @@ def delete_object(request, id):
         obj.delete()
         
         return JsonResponse({
-            'success': True, 
-            'message': f"L'objet {obj_name} a été supprimé avec succès"
+            'success': True,
+            'message': f"L'objet {obj_name} a été supprimé avec succès."
         })
     except ObjConnecte.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Objet non trouvé'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+@xp_level_required('complex')
+def create_object(request):
+    """Permet aux utilisateurs de créer un objet connecté."""
+    if request.method == 'POST':
+        form = ObjConnecteForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "L'objet connecté a été créé avec succès.")
+            return redirect('objConnecte:objets')
+    else:
+        form = ObjConnecteForm()
+    return render(request, 'objConnecte/create_object.html', {'form': form})
+
+@xp_level_required('complex')
+def edit_object(request, id):
+    """Permet aux utilisateurs de modifier un objet connecté."""
+    try:
+        obj = ObjConnecte.objects.get(id=id)
+    except ObjConnecte.DoesNotExist:
+        messages.error(request, "Objet connecté introuvable.")
+        return redirect('objConnecte:objets')
+
+    old_image = obj.image.path if obj.image else None  # Save the path of the old image
+
+    if request.method == 'POST':
+        form = ObjConnecteForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            if 'image' in request.FILES and old_image:
+                # Delete the old image file if a new one is uploaded
+                if os.path.exists(old_image):
+                    os.remove(old_image)
+            form.save()
+            messages.success(request, "L'objet connecté a été modifié avec succès.")
+            return redirect('objConnecte:objets')
+    else:
+        form = ObjConnecteForm(instance=obj)
+
+    return render(request, 'objConnecte/edit_object.html', {'form': form, 'objet': obj})
+
+@login_required
+@xp_level_required('complex')
+@require_POST
+def update_coordinates(request, id):
+    """Update the latitude and longitude of an object."""
+    try:
+        obj = ObjConnecte.objects.get(id=id)
+        data = json.loads(request.body)
+        obj.latitude = data.get('latitude')
+        obj.longitude = data.get('longitude')
+        obj.save()
+        return JsonResponse({'success': True, 'message': 'Coordonnées mises à jour avec succès.'})
+    except ObjConnecte.DoesNotExist:
+        return JsonResponse({'success': False, 'message': "L'objet n'existe pas."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

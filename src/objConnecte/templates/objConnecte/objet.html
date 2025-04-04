@@ -46,17 +46,48 @@
                             <th>Adresse IP</th>
                             <td>{{ objet.ip }}</td>
                         </tr>
+                        <tr>
+                            <th>Coordonnées</th>
+                            <td>{{ objet.latitude }}, {{ objet.longitude }}</td>
+                        </tr>
                     </table>
+                </div>
+                <div class="col-md-6">
+                    <h4>Localisation</h4>
+                    <div id="map" style="height: 300px; width: 100%;" class="border rounded mb-3"></div>
+                    <p class="text-muted">Coordonnées: {{ objet.latitude }}, {{ objet.longitude }}</p>
                 </div>
                 <div class="col-md-6">
                     <h4>Description</h4>
                     <div class="bg-light p-3 rounded mb-4">
                         <p>{{ objet.description|linebreaks }}</p>
                     </div>
-                    
-                    <h4>Localisation</h4>
-                    <div id="map" style="height: 300px; width: 100%;" class="border rounded mb-3"></div>
-                    <p class="text-muted">Coordonnées: {{ objet.latitude }}, {{ objet.longitude }}</p>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Ensure latitude and longitude are formatted correctly
+                var latitude = parseFloat("{{ objet.latitude|floatformat:"3" }}".replace(',', '.'));
+                var longitude = parseFloat("{{ objet.longitude|floatformat:"3" }}".replace(',', '.'));
+                
+                // Initialize the map
+                var map = L.map('map').setView([latitude, longitude], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors, Tiles courtesy of OSM France'
+                }).addTo(map);
+                
+                // Add a marker to the map
+                L.marker([latitude, longitude]).addTo(map)
+                    .bindPopup("{{ objet.name }}")
+                    .openPopup();
+            });
+        </script>
+                <div class="col-md-6">
+                    <h4>Description</h4>
+                    <div class="bg-light p-3 rounded mb-4">
+                        <p>{{ objet.description|linebreaks }}</p>
+                    </div>
 
                     {% if user.xp_level in 'complex admin' %}
                     <div class="card mt-4">
@@ -120,8 +151,6 @@
             .bindPopup("{{ objet.name }}");
         */
         
-        // Pour l'instant, affichons simplement un message:
-        document.getElementById('map').innerHTML = '<div class="text-center p-5"><p>Carte non disponible - intégration de carte à implémenter</p></div>';
         
         // Gérer le bouton d'activation/désactivation
         const toggleButton = document.getElementById('toggle-state');
@@ -261,4 +290,5 @@
         }
     });
 </script>
+
 {% endblock %}

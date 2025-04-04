@@ -13,6 +13,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -113,9 +116,6 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}"><i class="fas fa-user"></i> Profil</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}"><i class="fas fa-plug"></i> Objets Connectés</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'news:index' %}"><i class="fas fa-newspaper"></i> Actualités</a></li>
-                {% endif %}
-                {% if user.is_authenticated and user.xp_level in 'complex admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}"><i class="fas fa-cogs"></i> Gestion</a></li>
                 {% endif %}
                 {% if user.is_authenticated and user.xp_level == 'admin' %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}"><i class="fas fa-shield-alt"></i> Administration</a></li>

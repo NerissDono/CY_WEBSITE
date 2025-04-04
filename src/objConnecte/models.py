@@ -15,6 +15,7 @@ class ObjConnecte(models.Model):
     ip = models.GenericIPAddressField(verbose_name='Adresse IP', default='127.0.0.1')
     longitude = models.FloatField(verbose_name='Longitude', default=0.0)
     latitude = models.FloatField(verbose_name='Latitude', default=0.0)
+    highlighted = models.BooleanField(default=False, verbose_name="Marqué")
 
     def __str__(self):
         return self.name
