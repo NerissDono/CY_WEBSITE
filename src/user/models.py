@@ -91,3 +91,20 @@ def create_or_update_author(sender, instance, created, **kwargs):
         else:
             # Logique alternative si des articles existent
             pass
+
+@receiver(post_save, sender=User)
+def sync_admin_rights(sender, instance, **kwargs):
+    """
+    Synchronise les droits d'administration (is_staff et is_superuser)
+    en fonction du niveau d'XP de l'utilisateur.
+    """
+    if instance.xp_level == 'admin':
+        if not instance.is_staff or not instance.is_superuser:
+            instance.is_staff = True
+            instance.is_superuser = True
+            instance.save()
+    else:
+        if instance.is_staff or instance.is_superuser:
+            instance.is_staff = False
+            instance.is_superuser = False
+            instance.save()

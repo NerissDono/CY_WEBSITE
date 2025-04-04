@@ -18,6 +18,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from .models import User
+from django.core.files.storage import default_storage
 
 def login_user(request):
     if request.method == 'POST':
@@ -124,6 +125,12 @@ def update_profile_picture(request):
     if request.method == 'POST' and request.FILES.get('profile_picture'):
         profile_picture = request.FILES['profile_picture']
         user = request.user
+
+        # Supprimer l'ancienne photo de profil si elle existe
+        if user.profile_picture and default_storage.exists(user.profile_picture.path):
+            default_storage.delete(user.profile_picture.path)
+
+        # Mettre à jour avec la nouvelle photo
         user.profile_picture = profile_picture
         user.save()
         messages.success(request, "Votre photo de profil a été mise à jour avec succès.")
@@ -135,8 +142,25 @@ def update_profile_picture(request):
 def update_user_xp_level(request, username, new_level):
     try:
         user = User.objects.get(username=username)
+        
         user.xp_level = new_level
+
+        # Si le nouveau niveau est "admin", rendre l'utilisateur superutilisateur et membre du personnel
+        if new_level == 'admin':
+            user.is_superuser = True
+            user.is_staff = True
+        else:
+            user.is_superuser = False  # Retirer les droits de superutilisateur si ce n'est plus "admin"
+            user.is_staff = False  # Retirer les droits de membre du personnel
+
         user.save()
+
+        # Logique de synchronisation pour les utilisateurs déjà admin
+        if user.xp_level == 'admin' and (not user.is_staff or not user.is_superuser):
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+
         messages.success(request, f"Le niveau d'XP de {username} a été mis à jour à '{new_level}'.")
     except User.DoesNotExist:
         messages.error(request, f"L'utilisateur '{username}' n'existe pas.")
