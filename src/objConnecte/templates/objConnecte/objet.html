@@ -104,6 +104,13 @@
                                 <button class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Supprimer</button>
                                 {% endif %}
                             </div>
+                            {% if user.xp_level in 'intermediate complex admin' %}
+                            <div class="mt-3">
+                                <a href="{% url 'objConnecte:object_reports' objet.id %}" class="btn btn-outline-primary btn-block">
+                                    <i class="fas fa-chart-line"></i> Voir les rapports d'utilisation
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}

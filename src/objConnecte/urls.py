@@ -14,5 +14,9 @@ urlpatterns = [
     path('create/', views.create_object, name='create_object'),
     path('edit/<int:id>/', views.edit_object, name='edit_object'),
     path('api/update-coordinates/<int:id>/', update_coordinates, name='update_coordinates'),
+    path('reports/', views.object_reports, name='reports'),
+    path('reports/<int:id>/', views.object_reports, name='object_reports'),
+    path('reports/export/<str:format>/', views.export_report, name='export_report'),
+    path('reports/<int:id>/export/<str:format>/', views.export_report, name='export_object_report'),
 ]
 
