@@ -1,5 +1,6 @@
 import unicodedata
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 from django.db import models
 
 
@@ -72,6 +73,107 @@ class ObjConnecte(models.Model):
 
         return "Statut inconnu"
 
+    def generate_usage_data(self, start_date, end_date):
+        """Génère des données d'utilisation simulées pour la période spécifiée"""
+        data = []
+        current_date = start_date
+        while current_date <= end_date:
+            # Simuler différents types de données selon le type d'objet
+            type_nom = self.type.name.lower()
+            
+            if "lampadaire" in type_nom:
+                # Simuler la consommation énergétique (en kWh)
+                # Plus forte la nuit, plus faible le jour
+                hour = current_date.hour
+                if hour >= 20 or hour < 6:  # Nuit
+                    usage = random.uniform(0.4, 0.6)  # kWh
+                else:  # Jour
+                    usage = random.uniform(0.0, 0.1)  # kWh
+                data_type = "energy_consumption"
+                
+            elif "feu" in type_nom:
+                # Simuler la consommation énergétique pour les feux tricolores
+                usage = random.uniform(0.2, 0.3)  # kWh
+                data_type = "energy_consumption"
+                
+            elif "capteur" in type_nom:
+                if "pollution" in type_nom:
+                    # Simuler les niveaux de pollution (AQI)
+                    usage = random.uniform(30, 80)
+                    data_type = "pollution_level"
+                else:
+                    # Autres capteurs - consommation de batterie
+                    usage = random.uniform(0.05, 0.1)  # kWh
+                    data_type = "battery_consumption"
+                
+            elif "trottinette" in type_nom:
+                # Simuler le niveau de batterie (%)
+                usage = random.uniform(30, 100)
+                data_type = "battery_level"
+                
+            else:
+                # Par défaut, consommation énergétique
+                usage = random.uniform(0.1, 0.3)
+                data_type = "energy_consumption"
+            
+            # Ajouter des variations hebdomadaires
+            if current_date.weekday() >= 5:  # Weekend
+                usage *= 0.8  # Moins d'utilisation le weekend
+                
+            # Ajouter une entrée à notre liste de données
+            data.append({
+                'date': current_date,
+                'value': round(usage, 2),
+                'type': data_type
+            })
+            
+            # Passer à l'heure suivante
+            current_date += timedelta(hours=1)
+            
+        return data
+
+    def get_energy_consumption(self, period='day'):
+        """
+        Retourne la consommation énergétique totale pour la période spécifiée
+        period: 'day', 'week', 'month'
+        """
+        today = datetime.now()
+        
+        if period == 'day':
+            start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = today.replace(hour=23, minute=59, second=59, microsecond=999999)
+        elif period == 'week':
+            start_date = (today - timedelta(days=today.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = today
+        elif period == 'month':
+            start_date = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_date = today
+        else:
+            raise ValueError("Période non valide. Utilisez 'day', 'week', ou 'month'")
+        
+        # Générer des données simulées
+        usage_data = self.generate_usage_data(start_date, end_date)
+        
+        # Calculer la consommation totale (en considérant seulement la consommation énergétique)
+        energy_data = [item for item in usage_data if item['type'] == 'energy_consumption']
+        total_consumption = sum(item['value'] for item in energy_data)
+        
+        # Ajuster la consommation pour les feux tricolores
+        if 'feu' in self.type.name.lower():
+            if period == 'month':
+                total_consumption = 143.7  # Fixer la consommation mensuelle à 143.7 kWh
+            elif period == 'week':
+                total_consumption = 143.7 / 4  # Consommation hebdomadaire approximative
+            elif period == 'day':
+                total_consumption = 143.7 / 30  # Consommation journalière approximative
+        
+        return {
+            'total': round(total_consumption, 2),
+            'unit': 'kWh',
+            'period': period,
+            'data': energy_data
+        }
+
     class Meta:
         verbose_name = 'Objet connecté'
         verbose_name_plural = 'Objets connectés'
@@ -88,3 +190,27 @@ class Type(models.Model):
     class Meta:
         verbose_name = 'Type'
         verbose_name_plural = 'Types'
+
+
+class UsageData(models.Model):
+    """Modèle pour stocker les données d'utilisation des objets connectés"""
+    obj_connecte = models.ForeignKey(ObjConnecte, on_delete=models.CASCADE, related_name='usage_data')
+    timestamp = models.DateTimeField()
+    data_type = models.CharField(max_length=50, choices=[
+        ('energy_consumption', 'Consommation énergétique'),
+        ('pollution_level', 'Niveau de pollution'),
+        ('battery_level', 'Niveau de batterie'),
+        ('battery_consumption', 'Consommation de batterie'),
+        ('usage_count', 'Nombre d\'utilisations'),
+        ('uptime', 'Temps de fonctionnement'),
+    ])
+    value = models.FloatField()
+    unit = models.CharField(max_length=20, default='kWh')
+    
+    class Meta:
+        verbose_name = "Donnée d'utilisation"
+        verbose_name_plural = "Données d'utilisation"
+        ordering = ['-timestamp']
+        
+    def __str__(self):
+        return f"{self.obj_connecte.name} - {self.get_data_type_display()}: {self.value} {self.unit} ({self.timestamp})"

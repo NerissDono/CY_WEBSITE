@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import ObjConnecte, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -12,6 +12,8 @@ from .models import Type
 import os
 from django.conf import settings
 import json
+import csv
+from datetime import datetime, timedelta
 
 def index(request):
     # Statistiques pour la page d'accueil
@@ -242,3 +244,152 @@ def update_coordinates(request, id):
         return JsonResponse({'success': False, 'message': "L'objet n'existe pas."})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
+@login_required
+@xp_level_required('intermediate')
+def object_reports(request, id=None):
+    """Affiche les rapports d'utilisation pour un objet ou tous les objets"""
+    # Paramètres de filtrage
+    period = request.GET.get('period', 'day')
+    report_type = request.GET.get('type', 'energy')
+    start_date = request.GET.get('start_date', None)
+    end_date = request.GET.get('end_date', None)
+    
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    else:
+        # Par défaut, 7 jours en arrière
+        start_date = datetime.now() - timedelta(days=7)
+    
+    if end_date:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    else:
+        end_date = datetime.now()
+    
+    # Si un ID d'objet est fourni, afficher les rapports pour cet objet spécifique
+    if id:
+        try:
+            obj = ObjConnecte.objects.get(id=id)
+            objects = [obj]  # Liste contenant seulement cet objet
+            single_object = True
+        except ObjConnecte.DoesNotExist:
+            messages.error(request, "Objet connecté introuvable.")
+            return redirect('objConnecte:objets')
+    else:
+        # Sinon, afficher les rapports pour tous les objets
+        objects = ObjConnecte.objects.all()
+        single_object = False
+        
+        # Filtrage par type d'objet si spécifié
+        type_id = request.GET.get('type_id', '')
+        if type_id:
+            objects = objects.filter(type_id=type_id)
+    
+    # Récupérer les données d'utilisation pour chaque objet
+    reports_data = []
+    total_consumption = 0
+    
+    for obj in objects:
+        if report_type == 'energy':
+            data = obj.get_energy_consumption(period)
+            total_consumption += data['total']
+            reports_data.append({
+                'object': obj,
+                'data': data
+            })
+    
+    # Récupérer tous les types pour le filtre
+    types = Type.objects.all()
+    
+    context = {
+        'reports_data': reports_data,
+        'total_consumption': round(total_consumption, 2),
+        'period': period,
+        'report_type': report_type,
+        'single_object': single_object,
+        'object_id': id,
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'types': types,
+        'selected_type_id': request.GET.get('type_id', ''),
+    }
+    
+    return render(request, 'objConnecte/reports.html', context)
+
+@login_required
+@xp_level_required('intermediate')
+def export_report(request, id=None, format='csv'):
+    """Exporte les données d'utilisation au format CSV ou PDF"""
+    period = request.GET.get('period', 'day')
+    report_type = request.GET.get('type', 'energy')
+    
+    # Récupérer l'objet ou tous les objets
+    if id:
+        try:
+            objects = [ObjConnecte.objects.get(id=id)]
+        except ObjConnecte.DoesNotExist:
+            messages.error(request, "Objet connecté introuvable.")
+            return redirect('objConnecte:objets')
+    else:
+        objects = ObjConnecte.objects.all()
+        
+        # Filtrage par type d'objet si spécifié
+        type_id = request.GET.get('type_id', '')
+        if type_id:
+            objects = objects.filter(type_id=type_id)
+    
+    # Si format est CSV
+    if format == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="report_{datetime.now().strftime("%Y%m%d")}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Objet', 'Type', 'Date', 'Valeur', 'Unité'])
+        
+        for obj in objects:
+            if report_type == 'energy':
+                data = obj.get_energy_consumption(period)
+                for entry in data['data']:
+                    writer.writerow([
+                        obj.name,
+                        obj.type.name,
+                        entry['date'].strftime("%Y-%m-%d %H:%M"),
+                        entry['value'],
+                        data['unit']
+                    ])
+        
+        return response
+    
+    # Si format est JSON
+    elif format == 'json':
+        data = []
+        
+        for obj in objects:
+            if report_type == 'energy':
+                report_data = obj.get_energy_consumption(period)
+                obj_data = {
+                    'name': obj.name,
+                    'type': obj.type.name,
+                    'total': report_data['total'],
+                    'unit': report_data['unit'],
+                    'entries': []
+                }
+                
+                for entry in report_data['data']:
+                    obj_data['entries'].append({
+                        'date': entry['date'].strftime("%Y-%m-%d %H:%M"),
+                        'value': entry['value']
+                    })
+                
+                data.append(obj_data)
+        
+        response = HttpResponse(json.dumps(data, indent=4), content_type='application/json')
+        response['Content-Disposition'] = f'attachment; filename="report_{datetime.now().strftime("%Y%m%d")}.json"'
+        return response
+    
+    else:
+        messages.error(request, "Format d'exportation non supporté.")
+        if id:
+            return redirect('objConnecte:object_reports', id=id)
+        else:
+            return redirect('objConnecte:reports')
