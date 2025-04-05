@@ -13,6 +13,11 @@ from django.utils.decorators import method_decorator
 from user.models import User  # Ajoutez cette importation en haut du fichier
 from .models import Article, Category, Author
 from .forms import ArticleForm  # Importez le formulaire pour les articles
+from django.db import models
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import mark_safe
+from django.template.defaultfilters import json_script
+import json  # Import nécessaire pour convertir les données en JSON
 
 def index(request):
     query = request.GET.get('q', '')
@@ -59,7 +64,43 @@ def gestion(request):
 @user_passes_test(lambda u: u.is_superuser)
 @xp_level_required('admin')
 def administration(request):
-    return render(request, 'news/administration.html')
+    # Récupérer les articles avec leur nombre de vues
+    articles = Article.objects.annotate(view_count=models.Count('read_by')).order_by('-view_count')[:10]
+    article_titles = [article.title for article in articles]
+    article_views = [article.view_count for article in articles]
+    
+    # Récupérer les utilisateurs avec leur nombre de connexions
+    users_by_logins = User.objects.order_by('-login_count')[:10]
+    user_logins = [user.username for user in users_by_logins]
+    login_counts = [user.login_count for user in users_by_logins]
+    
+    # Récupérer les utilisateurs classés par XP
+    users_by_xp = User.objects.order_by('-xp_points', 'xp_level')[:10]
+    xp_usernames = [user.username for user in users_by_xp]
+    xp_levels = [user.xp_level for user in users_by_xp]
+    xp_points = [user.xp_points for user in users_by_xp]
+    
+    # Répartition des utilisateurs par type de XP
+    xp_level_counts = User.objects.values('xp_level').annotate(count=models.Count('xp_level'))
+    xp_level_labels = [entry['xp_level'] for entry in xp_level_counts]
+    xp_level_counts_data = [entry['count'] for entry in xp_level_counts]
+
+
+    
+    return render(request, 'news/administration.html', {
+        'articles': articles,
+        'users_by_logins': users_by_logins,
+        'users_by_xp': users_by_xp,
+        'article_titles_json': json.dumps(article_titles),
+        'article_views_json': json.dumps(article_views),
+        'user_logins_json': json.dumps(user_logins),
+        'login_counts_json': json.dumps(login_counts),
+        'xp_usernames_json': json.dumps(xp_usernames),
+        'xp_levels_json': json.dumps(xp_levels),
+        'xp_points_json': json.dumps(xp_points),
+        'xp_level_labels_json': json.dumps(xp_level_labels),
+        'xp_level_counts_json': json.dumps(xp_level_counts_data),
+    })
 
 @login_required
 def visualisation(request):

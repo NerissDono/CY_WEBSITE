@@ -7,6 +7,7 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'published_date')
     list_filter = ('published_date', 'author')
     search_fields = ('title', 'content')
+    readonly_fields = ('image_preview',)
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):

@@ -1,6 +1,6 @@
 from datetime import timezone
 from django.db import models
-
+from django.utils.html import mark_safe
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nom de la catégorie", unique=True)
 
@@ -40,7 +40,11 @@ class Article(models.Model):
         blank=True,
         verbose_name="Utilisateurs ayant lu l'article"
     )
-
+    def image_preview(self):
+        if self.cover:
+            return mark_safe(f'<img src="{self.cover.url}" width="100" height="100" />')
+        return "Pas d'image"
+    
     def __str__(self):
         return self.title
 

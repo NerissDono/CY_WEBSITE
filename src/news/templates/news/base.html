@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -24,42 +29,109 @@
         }
         .content {
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         body {
-            background: url("{% static 'city_background.jpg' %}") no-repeat center center fixed;
+            background: url("{% static 'back3.png' %}") no-repeat center center fixed;
             background-size: cover;
         }
+
+        .navbar {
+            background-color: #1e2a47; /* Couleur foncée */
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f8f9fa !important;
+        }
+        footer {
+            background-color: #282828; /* Couleur de fond foncée pour le pied de page */
+            color: #fff;
+        }
+        footer a {
+            color: #fff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .card {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        
+        /* Fix for full-width images */
+        .full-width-img-container {
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .full-width-img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        
+        /* For card images */
+        .card-img-top {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        /* Footer positioning fix */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .content {
+            flex: 1;
+        }
+        
     </style>
 </head>
 <body>
 <div class="wrapper">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{% url 'index' %}">CY_WEBSITE</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'index' %}">StarCity</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'accueil' %}">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'visualisation' %}">Profil</a></li>
-                {% if user.xp_level in 'intermediate complex admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news:gestion' %}">Gestion</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'news:visualisation' %}"><i class="fas fa-user"></i> Profil</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'objConnecte:obj-index' %}"><i class="fas fa-plug"></i> Objets Connectés</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'news:index' %}"><i class="fas fa-newspaper"></i> Actualités</a></li>
                 {% endif %}
-                {% if user.xp_level == 'admin' %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}">Administration</a></li>
+                {% if user.is_authenticated and user.xp_level == 'admin' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news:administration' %}"><i class="fas fa-shield-alt"></i> Administration</a></li>
                 {% endif %}
-                <li class="nav-item"><a class="nav-link" href="/admin/">Admin Django</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-cogs"></i> Admin Django</a></li>
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}">Déconnexion</a>
+                    <a class="nav-link btn btn-danger text-white" href="{% url 'user:logout' %}"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user:update_profile_picture' %}">
-                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;" data-toggle="modal" data-target="#profileModal">
+                    <a class="nav-link" href="{% url 'user:update_user' %}">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'default_profile.png' %}{% endif %}" alt="Profile Picture" class="rounded-circle" style="width: 40px; height: 40px;">
                     </a>
                 </li>
                 {% else %}
@@ -67,44 +139,25 @@
                     <a class="nav-link" href="{% url 'user:login' %}">Connexion</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'user:register' %}">Inscription</a></li>
+                    <a class="nav-link" href="{% url 'user:register' %}">Inscription</a>
+                </li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
-    <div class="container content mt-4">
+    
         {% block content %}
         {% endblock %}
-    </div>
+    
 
-    <footer class="bg-light text-center text-lg-start mt-4 d-flex align-items-center" style="padding: 10px; font-size: 0.9rem; height: 50px;">
-        <div class="container p-0.5 text-center">
-            <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
-        </div>
-    </footer>
-
-    <!-- Profile Modal -->
-    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="profileModalLabel">Profile Information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Here you can add more information about the user or options related to the profile.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
+    <!-- Footer -->
+    <footer class="bg-dark text-center text-white py-3">
+        <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
+        <p>Contactez-nous à : <a href="mailto:contact@cywebsite.com" class="text-white">contact@cywebsite.com</a></p>
+    </footer>
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
