@@ -18,6 +18,8 @@ urlpatterns = [
     path('make-admin/', views.temp_make_admin, name='make_admin'),
     path('article/<int:article_id>/', views.article_detail, name='article_detail'),
     path('mark_as_read/<int:article_id>/', mark_as_read, name='mark_as_read'),
+    path('administration/duplicate-database/', views.duplicate_database, name='duplicate_database'),
+    path('administration/replace-database/', views.replace_database, name='replace_database'),
 ]
 
 

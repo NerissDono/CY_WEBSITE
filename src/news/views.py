@@ -17,7 +17,12 @@ from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import json_script
+from django.urls import reverse  # Import nécessaire pour générer des URLs
 import json  # Import nécessaire pour convertir les données en JSON
+import shutil
+import os
+from django.conf import settings
+from pathlib import Path
 
 def index(request):
     query = request.GET.get('q', '')
@@ -85,8 +90,6 @@ def administration(request):
     xp_level_labels = [entry['xp_level'] for entry in xp_level_counts]
     xp_level_counts_data = [entry['count'] for entry in xp_level_counts]
 
-
-    
     return render(request, 'news/administration.html', {
         'articles': articles,
         'users_by_logins': users_by_logins,
@@ -227,5 +230,72 @@ def mark_as_read(request, article_id):
         except Article.DoesNotExist:
             return JsonResponse({'success': False, 'error': "L'article n'existe pas."}, status=404)
     return JsonResponse({'success': False, 'error': "Méthode non autorisée."}, status=405)
+
+@user_passes_test(lambda u: u.is_superuser)
+def duplicate_database(request):
+    db_path = settings.DATABASES['default']['NAME']
+    
+    # Générer un chemin de sauvegarde unique
+    def generate_backup_path(base_path):
+        counter = 1
+        base_name, ext = os.path.splitext(base_path)
+        backup_path = f"{base_name}_backup{ext}"
+        while os.path.exists(backup_path):
+            backup_path = f"{base_name}_backup_{counter}{ext}"
+            counter += 1
+        return backup_path
+
+    try:
+        backup_path = generate_backup_path(db_path)
+        shutil.copy(db_path, backup_path)
+        # Retourner une réponse avec un script JavaScript pour afficher une pop-up
+        return HttpResponse(f"""
+            <script>
+                alert('La base de données a été dupliquée avec succès vers {backup_path}');
+                window.location.href = "{reverse('news:administration')}";
+            </script>
+        """)
+    except Exception as e:
+        # Retourner une réponse avec un script JavaScript pour afficher une erreur
+        return HttpResponse(f"""
+            <script>
+                alert('Erreur lors de la duplication : {e}');
+                window.location.href = "{reverse('news:administration')}";
+            </script>
+        """)
+
+@user_passes_test(lambda u: u.is_superuser)
+@csrf_exempt
+def replace_database(request):
+    if request.method == 'POST' and request.FILES.get('database_archive'):
+        db_path = settings.DATABASES['default']['NAME']
+        archive = request.FILES['database_archive']
+        try:
+            with open(db_path, 'wb') as destination:
+                for chunk in archive.chunks():
+                    destination.write(chunk)
+            # Retourner une réponse avec un script JavaScript pour afficher une pop-up
+            return HttpResponse(f"""
+                <script>
+                    alert('La base de données a été remplacée avec succès.');
+                    window.location.href = "{reverse('news:administration')}";
+                </script>
+            """)
+        except Exception as e:
+            # Retourner une réponse avec un script JavaScript pour afficher une erreur
+            return HttpResponse(f"""
+                <script>
+                    alert('Erreur lors du remplacement : {e}');
+                    window.location.href = "{reverse('news:administration')}";
+                </script>
+            """)
+    else:
+        # Retourner une réponse avec un script JavaScript pour afficher une erreur
+        return HttpResponse(f"""
+            <script>
+                alert('Aucun fichier valide n\'a été fourni.');
+                window.location.href = "{reverse('news:administration')}";
+            </script>
+        """)
 
 
