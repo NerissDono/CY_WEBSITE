@@ -1,0 +1,33 @@
+{% extends "cyWebsite/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Historique des actions des utilisateurs</h1>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Action</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in page_obj %}
+            <tr>
+                <td>{{ log.user.username }}</td>
+                <td>{{ log.action }}</td>
+                <td>{{ log.timestamp|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">Précédent</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">Suivant</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

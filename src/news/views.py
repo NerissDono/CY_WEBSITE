@@ -10,7 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from user.models import User  # Ajoutez cette importation en haut du fichier
+from user.models import User, UserActionLog  # Ajoutez cette importation en haut du fichier
 from .models import Article, Category, Author, SiteAppearance
 from .forms import ArticleForm, SiteAppearanceForm  # Importez le formulaire pour les articles et l'apparence du site
 from django.db import models
@@ -134,23 +134,20 @@ def create_article(request):
         if form.is_valid():
             article = form.save(commit=False)
             try:
-                # Associez l'article à l'instance Author correspondante
                 author = Author.objects.get(name=request.user.username)
                 article.author = author
-                article.save()  # Sauvegarde l'article dans la base de données
-                # Ajouter 1 point d'XP
+                article.save()
                 request.user.add_xp(1)
+                # Enregistrez l'action de création d'article
+                UserActionLog.objects.create(user=request.user, action=f"a créé l'article '{article.title}'.")
                 messages.success(request, "L'article a été publié avec succès. +1 XP!")
-                return redirect('news:visualisation')  # Redirigez vers la page de profil
+                return redirect('news:visualisation')
             except Author.DoesNotExist:
                 messages.error(request, "Vous n'êtes pas enregistré comme auteur.")
             except Exception as e:
                 messages.error(request, f"Une erreur est survenue : {e}")
-        else:
-            messages.error(request, "Le formulaire contient des erreurs. Veuillez vérifier les champs.")
     else:
         form = ArticleForm()
-    
     return render(request, 'news/create_article.html', {'form': form})
 
 @login_required
@@ -237,8 +234,10 @@ def mark_as_read(request, article_id):
     if request.method == 'POST':
         try:
             article = Article.objects.get(id=article_id)
-            article.read_by.add(request.user)  # Mark the article as read by the user
-            request.user.add_xp(1)  # Add 1 XP to the user
+            article.read_by.add(request.user)  # Marquez l'article comme lu
+            request.user.add_xp(1)  # Ajoutez 1 XP à l'utilisateur
+            # Enregistrez l'action de lecture
+            UserActionLog.objects.create(user=request.user, action=f"a lu l'article '{article.title}'.")
             return JsonResponse({'success': True})
         except Article.DoesNotExist:
             return JsonResponse({'success': False, 'error': "L'article n'existe pas."}, status=404)

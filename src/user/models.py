@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime
-from news.models import Article, Author  # Importez le modèle Author
+from django.apps import apps
 
 class User(AbstractUser):
     profile_picture = models.ImageField(
@@ -81,6 +81,8 @@ def add_user_to_auth_group(sender, instance, **kwargs):
 
 @receiver(post_save, sender=User)
 def create_or_update_author(sender, instance, created, **kwargs):
+    Author = apps.get_model('news', 'Author')  # Déplacez ici
+    Article = apps.get_model('news', 'Article')  # Déplacez ici
     if instance.xp_level in ['complex', 'admin']:
         # Créez ou mettez à jour l'auteur associé
         Author.objects.update_or_create(
@@ -111,3 +113,11 @@ def sync_admin_rights(sender, instance, **kwargs):
             instance.is_staff = False
             instance.is_superuser = False
             instance.save()
+
+class UserActionLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='action_logs')
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action} - {self.timestamp}"
