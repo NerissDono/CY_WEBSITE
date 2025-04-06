@@ -16,4 +16,5 @@ urlpatterns = [
     path('update_profile_picture/', update_profile_picture, name='update_profile_picture'),
     path('activate/<uidb64>/<token>/', activate_account, name='activate_account'),
     path('password_reset/<uidb64>/<token>/', password_reset , name='password_reset'),
+    path('action_logs/', user_action_logs, name='action_logs'),
 ]

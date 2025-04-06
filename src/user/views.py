@@ -17,21 +17,22 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from .models import User
+from .models import User, UserActionLog
 from django.core.files.storage import default_storage
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 
 def login_user(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        print(username, password)
-        user = authenticate(username=username, password=password)
-        if user is not None:
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            return redirect('index')  # Assurez-vous que 'index' correspond à une URL valide
-        else:
-            messages.error(request, "Nom d'utilisateur ou mot de passe incorrect")
-    form = CustomAuthenticationForm()
+            # Enregistrez l'action de connexion
+            UserActionLog.objects.create(user=user, action="s'est connecté.")
+            return redirect('accueil')
+    else:
+        form = AuthenticationForm()
     return render(request, 'user/login.html', {'form': form})
 
 def logout_user(request):
@@ -112,6 +113,8 @@ def update_user(request):
         form = CustomUpdateUserForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            # Enregistrez l'action de modification du profil
+            UserActionLog.objects.create(user=request.user, action="a modifié son profil.")
             messages.success(request, "Vos informations de profil ont été mises à jour avec succès.")
             return redirect('news:visualisation')
         else:
@@ -217,3 +220,11 @@ def activate_account(request, uidb64, token):
         return redirect('user:login')  
     else:
         return HttpResponse('Le lien d\'activation est invalide.')
+
+@staff_member_required
+def user_action_logs(request):
+    logs = UserActionLog.objects.select_related('user').order_by('-timestamp')
+    paginator = Paginator(logs, 20)  # 20 logs par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'user/action_logs_no_nav.html', {'page_obj': page_obj})  # Utilise un template sans barre de navigation
