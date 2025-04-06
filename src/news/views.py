@@ -11,8 +11,8 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from user.models import User  # Ajoutez cette importation en haut du fichier
-from .models import Article, Category, Author
-from .forms import ArticleForm  # Importez le formulaire pour les articles
+from .models import Article, Category, Author, SiteAppearance
+from .forms import ArticleForm, SiteAppearanceForm  # Importez le formulaire pour les articles et l'apparence du site
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
@@ -90,6 +90,17 @@ def administration(request):
     xp_level_labels = [entry['xp_level'] for entry in xp_level_counts]
     xp_level_counts_data = [entry['count'] for entry in xp_level_counts]
 
+    # Gestion du formulaire d'apparence du site
+    appearance = SiteAppearance.get_current()
+    if request.method == 'POST' and 'appearance_form' in request.POST:
+        appearance_form = SiteAppearanceForm(request.POST, instance=appearance)
+        if appearance_form.is_valid():
+            appearance_form.save()
+            messages.success(request, "L'apparence du site a été mise à jour avec succès.")
+            return redirect('news:administration')
+    else:
+        appearance_form = SiteAppearanceForm(instance=appearance)
+    
     return render(request, 'news/administration.html', {
         'articles': articles,
         'users_by_logins': users_by_logins,
@@ -103,6 +114,8 @@ def administration(request):
         'xp_points_json': json.dumps(xp_points),
         'xp_level_labels_json': json.dumps(xp_level_labels),
         'xp_level_counts_json': json.dumps(xp_level_counts_data),
+        'appearance_form': appearance_form,
+        'appearance': appearance,
     })
 
 @login_required

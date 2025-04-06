@@ -3,8 +3,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>CY_WEBSITE</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_appearance.site_title }}</title>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom Styles -->
@@ -17,10 +17,14 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+        :root {
+            --primary-color: {{ site_appearance.primary_color }};
+        }
+        
         html, body {
             height: 100%;
             margin: 0;
-            font-family: 'Roboto', sans-serif;
+            font-family: {{ site_appearance.font_family }};
         }
         .wrapper {
             display: flex;
@@ -38,7 +42,7 @@
         }
 
         .navbar {
-            background-color: #1e2a47; /* Couleur foncée */
+            background-color: var(--primary-color);
         }
         .navbar-brand, .nav-link {
             color: #fff !important;
@@ -59,9 +63,23 @@
         }
         .card {
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
         }
         
+        {% if site_appearance.enable_animations %}
+        .card {
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        {% else %}
+        .card {
+            transition: none;
+        }
+        .card:hover {
+            transform: none;
+        }
+        {% endif %}
         
         /* Fix for full-width images */
         .full-width-img-container {
@@ -105,8 +123,8 @@
 <body>
 <div class="wrapper">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{% url 'index' %}">StarCity</a>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="{% url 'index' %}">{{ site_appearance.site_title }}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -153,7 +171,7 @@
 </div>
     <!-- Footer -->
     <footer class="bg-dark text-center text-white py-3">
-        <p>&copy; 2025 CY_WEBSITE. Tous droits réservés.</p>
+        <p>{{ site_appearance.footer_text }}</p>
         <p>Contactez-nous à : <a href="mailto:contact@cywebsite.com" class="text-white">contact@cywebsite.com</a></p>
     </footer>
 <!-- JS -->

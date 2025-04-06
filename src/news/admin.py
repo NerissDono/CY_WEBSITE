@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Article, Author, Category, Comment
+from .models import Article, Author, Category, Comment, SiteAppearance
 
 
 @admin.register(Article)
@@ -24,4 +24,14 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'created_date')
     list_filter = ('created_date',)
     search_fields = ('name', 'email')
+
+@admin.register(SiteAppearance)
+class SiteAppearanceAdmin(admin.ModelAdmin):
+    list_display = ('primary_color', 'font_family', 'site_title', 'enable_animations')
+    
+    def has_add_permission(self, request):
+        # Empêcher la création de plusieurs instances
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
 

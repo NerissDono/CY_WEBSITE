@@ -1,6 +1,7 @@
 from datetime import timezone
 from django.db import models
 from django.utils.html import mark_safe
+
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Nom de la catégorie", unique=True)
 
@@ -61,3 +62,39 @@ class Comment(models.Model):
     class Meta:
         verbose_name = "Commentaire"
         verbose_name_plural = "Commentaires"
+
+class SiteAppearance(models.Model):
+    PRIMARY_COLOR_CHOICES = [
+        ('#1e2a47', 'Bleu foncé (défaut)'),
+        ('#28a745', 'Vert'),
+        ('#dc3545', 'Rouge'),
+        ('#ffc107', 'Jaune'),
+        ('#17a2b8', 'Bleu clair'),
+        ('#6610f2', 'Violet'),
+        ('#fd7e14', 'Orange'),
+        ('#343a40', 'Noir'),
+    ]
+    
+    FONT_CHOICES = [
+        ('Roboto, sans-serif', 'Roboto (défaut)'),
+        ('Arial, sans-serif', 'Arial'),
+        ('Helvetica, sans-serif', 'Helvetica'),
+        ('Times New Roman, serif', 'Times New Roman'),
+        ('Georgia, serif', 'Georgia'),
+        ('Courier New, monospace', 'Courier New'),
+    ]
+    
+    primary_color = models.CharField(max_length=20, choices=PRIMARY_COLOR_CHOICES, default='#1e2a47')
+    font_family = models.CharField(max_length=50, choices=FONT_CHOICES, default='Roboto, sans-serif')
+    enable_animations = models.BooleanField(default=True)
+    site_title = models.CharField(max_length=100, default='StarCity')
+    footer_text = models.CharField(max_length=200, default='© 2025 CY_WEBSITE. Tous droits réservés.')
+    
+    class Meta:
+        verbose_name = "Apparence du site"
+        verbose_name_plural = "Apparence du site"
+    
+    @classmethod
+    def get_current(cls):
+        appearance, created = cls.objects.get_or_create(pk=1)
+        return appearance
