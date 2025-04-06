@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'news',
-    'objConnecte',
     'user',
+    'objConnecte',
 ]
 
 MIDDLEWARE = [
@@ -142,7 +142,11 @@ EMAIL_HOST_PASSWORD = 'pnsm ipap lfvh lvau'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Utiliser l'email configuré comme expéditeur
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-LOGIN_REDIRECT_URL = 'accueil'
+LOGIN_REDIRECT_URL = '/'  # Redirige vers la page d'accueil
 LOGOUT_REDIRECT_URL = 'accueil'
 
 AUTH_USER_MODEL = 'user.User'
+
+# Autoriser les iframes pour le domaine local
+X_FRAME_OPTIONS = 'ALLOW-FROM http://127.0.0.1:8000'
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000']

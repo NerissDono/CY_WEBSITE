@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from .models import ObjConnecte, Type
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -14,6 +14,7 @@ from django.conf import settings
 import json
 import csv
 from datetime import datetime, timedelta
+from user.models import UserActionLog
 
 def index(request):
     # Statistiques pour la page d'accueil
@@ -106,6 +107,10 @@ def toggle_state(request, id):
         obj.state = not obj.state
         obj.save()
         
+        # Enregistrez l'action d'activation/désactivation
+        action = "activé" if obj.state else "désactivé"
+        UserActionLog.objects.create(user=request.user, action=f"a {action} l'objet connecté '{obj.name}'.")
+        
         return JsonResponse({
             'success': True, 
             'state': obj.state, 
@@ -130,6 +135,9 @@ def refresh_state(request, id):
         is_connected = random.choice([True, False])
         obj.connected = is_connected
         obj.save()
+        
+        # Enregistrez l'action d'actualisation
+        UserActionLog.objects.create(user=request.user, action=f"a actualisé l'état de l'objet connecté '{obj.name}'.")
             
         return JsonResponse({
             'success': True,
@@ -180,6 +188,9 @@ def delete_object(request, id):
         obj_name = obj.name
         obj.delete()
         
+        # Enregistrez l'action de suppression
+        UserActionLog.objects.create(user=request.user, action=f"a supprimé l'objet connecté '{obj_name}'.")
+        
         return JsonResponse({
             'success': True,
             'message': f"L'objet {obj_name} a été supprimé avec succès."
@@ -202,31 +213,20 @@ def create_object(request):
         form = ObjConnecteForm()
     return render(request, 'objConnecte/create_object.html', {'form': form})
 
-@xp_level_required('complex')
+@login_required
 def edit_object(request, id):
-    """Permet aux utilisateurs de modifier un objet connecté."""
-    try:
-        obj = ObjConnecte.objects.get(id=id)
-    except ObjConnecte.DoesNotExist:
-        messages.error(request, "Objet connecté introuvable.")
-        return redirect('objConnecte:objets')
-
-    old_image = obj.image.path if obj.image else None  # Save the path of the old image
-
+    obj = get_object_or_404(ObjConnecte, id=id)
     if request.method == 'POST':
-        form = ObjConnecteForm(request.POST, request.FILES, instance=obj)
+        form = ObjConnecteForm(request.POST, instance=obj)
         if form.is_valid():
-            if 'image' in request.FILES and old_image:
-                # Delete the old image file if a new one is uploaded
-                if os.path.exists(old_image):
-                    os.remove(old_image)
             form.save()
-            messages.success(request, "L'objet connecté a été modifié avec succès.")
+            # Enregistrez l'action de modification
+            UserActionLog.objects.create(user=request.user, action=f"a modifié l'objet connecté '{obj.name}'.")
+            messages.success(request, "L'objet a été modifié avec succès.")
             return redirect('objConnecte:objets')
     else:
         form = ObjConnecteForm(instance=obj)
-
-    return render(request, 'objConnecte/edit_object.html', {'form': form, 'objet': obj})
+    return render(request, 'objConnecte/edit_object.html', {'form': form, 'object': obj})
 
 @login_required
 @xp_level_required('complex')
