@@ -113,4 +113,75 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Dark Mode Styles */
+.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.dark-mode body {
+    background: #121212 !important;
+}
+
+.dark-mode .navbar {
+    background-color: #1a1a1a !important;
+}
+
+.dark-mode .card,
+.dark-mode .jumbotron,
+.dark-mode #equipment-list {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #333;
+}
+
+.dark-mode .btn-outline-light {
+    border-color: #e0e0e0;
+    color: #e0e0e0;
+}
+
+.dark-mode .btn-outline-light:hover {
+    background-color: #333;
+}
+
+.dark-mode .form-control {
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+.dark-mode .table {
+    color: #e0e0e0;
+}
+
+.dark-mode .table th,
+.dark-mode .table td {
+    border-color: #444;
+}
+
+.dark-mode .bg-white {
+    background-color: #1e1e1e !important;
+}
+
+.dark-mode a {
+    color: #4dabf7;
+}
+
+.dark-mode a:hover {
+    color: #74c0fc;
+}
+
+.dark-mode .text-dark {
+    color: #e0e0e0 !important;
+}
+
+.dark-mode .alert-info {
+    background-color: #004085;
+    border-color: #004085;
+    color: #cce5ff;
+}
+
+.dark-mode footer {
+    background-color: #1a1a1a !important;
+}
 
