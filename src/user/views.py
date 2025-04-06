@@ -30,7 +30,7 @@ def login_user(request):
             login(request, user)
             # Enregistrez l'action de connexion
             UserActionLog.objects.create(user=user, action="s'est connecté.")
-            return redirect('accueil')
+            return redirect('index')
     else:
         form = AuthenticationForm()
     return render(request, 'user/login.html', {'form': form})
