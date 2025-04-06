@@ -106,6 +106,11 @@
                         <button type="submit" class="btn btn-primary">Filtrer</button>
                         <a href="{% if single_object %}{% url 'objConnecte:object_reports' object_id %}{% else %}{% url 'objConnecte:reports' %}{% endif %}" class="btn btn-outline-secondary ml-2">Réinitialiser</a>
                     </div>
+                    <div class="text-center mt-3">
+                        <button id="exportPdfobjBtn" class="btn btn-primary">
+                            <i class="fas fa-file-pdf mr-2"></i>Exporter en PDF
+                        </button>
+                    </div>
                 </div>
             </form>
 
@@ -612,5 +617,54 @@
             createCharts();
         }
     });
+
+    async function exportToPDF() {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const title = "Rapport des Statistiques";
+            const date = new Date().toLocaleDateString();
+
+            // Ajouter le titre et la date
+            doc.setFontSize(18);
+            doc.text(title, 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text(`Généré le: ${date}`, 105, 30, { align: 'center' });
+
+            let yPosition = 40;
+
+            // Exporter chaque graphique
+            const charts = document.querySelectorAll('canvas[id^="chart_"]');
+            for (const canvas of charts) {
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = doc.getImageProperties(imgData);
+                const pdfWidth = doc.internal.pageSize.getWidth() - 20;
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                // Ajouter le graphique au PDF
+                if (yPosition + pdfHeight > doc.internal.pageSize.getHeight() - 20) {
+                    doc.addPage();
+                    yPosition = 20; // Réinitialiser la position sur une nouvelle page
+                }
+                doc.addImage(imgData, 'PNG', 10, yPosition, pdfWidth, pdfHeight);
+                yPosition += pdfHeight + 10; // Espacement entre les graphiques
+            }
+
+            // Sauvegarder le PDF
+            doc.save(`rapport_objet_connecte_${date.replace(/\//g, '-')}.pdf`);
+        } catch (error) {
+            console.error('Erreur lors de l\'export PDF:', error);
+            alert('Une erreur est survenue lors de l\'export PDF');
+        }
+    }
+
+    // Écouteur pour le bouton d'export
+    document.getElementById('exportPdfobjBtn').addEventListener('click', function (event) {
+        event.preventDefault(); // Empêcher le comportement par défaut
+        exportToPDF();
+    });
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 {% endblock %}
